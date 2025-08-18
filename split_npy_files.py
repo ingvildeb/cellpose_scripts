@@ -5,21 +5,29 @@ from pathlib import Path
 import tifffile
 from utils import split_z_stack, calculate_z_numbers
 
-# Set the path for your .npy images
+
+### USER PARAMETERS
+
+# Path to your tif and npy images
 base_path = Path(r"Z:\Labmembers\Ingvild\Testing_CellPose\test_3d\test_iba1\chunked_images_512by512//")
+
+# Option to not save the first and last z plane of the stack
+# Set to True if you did not label these planes
+omit_first_and_last = True
+
+
+### MAIN CODE, do not edit
+
 out_path = Path(base_path / "split_files")
 
-
-## Main code, do not edit
+# Create output directory if it doesn't exist
 out_path.mkdir(exist_ok=True)
 
 # Loop through all .tif files in the base path
-
 for tif_file in base_path.glob("*.tif"):
-
     # Generate list of tif and npy planes
     img_z_list, npy_z_list, no_z_planes = split_z_stack(tif_file)
-     
+
     # Get the start and end numbers for all the MIPs in the z stack
     split_stem = tif_file.stem.split("_")
 
@@ -38,11 +46,17 @@ for tif_file in base_path.glob("*.tif"):
 
     subject_id = split_stem[1]
     chunk_info = "_".join(split_stem[-3:])
-    
+
+    # Determine the range of z planes to iterate over
+    if omit_first_and_last:
+        z_range = range(1, len(img_z_list) - 1)  # Exclude the first and last
+    else:
+        z_range = range(len(img_z_list))  # Include all planes
+
     # Loop through z planes to generate individual tif and npy files
-    z = -1
-    for img_z, npy_z in zip(img_z_list, npy_z_list):
-        z = z+1
+    for z in z_range:
+        img_z = img_z_list[z]
+        npy_z = npy_z_list[z]
 
         if "MIP" in split_stem:
             out_name = f"{subject_id}_MIP_{MIP_start_numbers[z]}_{MIP_end_numbers[z]}_{chunk_info}"
@@ -54,10 +68,3 @@ for tif_file in base_path.glob("*.tif"):
 
         z_npy_filename = out_path / f"{out_name}_seg.npy"
         np.save(z_npy_filename, npy_z)
-
-
-
-
-
-
-
