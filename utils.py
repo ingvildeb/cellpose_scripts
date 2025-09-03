@@ -3,7 +3,6 @@ import tifffile
 from pathlib import Path
 import random
 
-
 def calculate_iou(gt_mask, pred_mask):
     intersection = np.logical_and(gt_mask, pred_mask).sum()
     union = np.logical_or(gt_mask, pred_mask).sum()
@@ -14,8 +13,7 @@ def calculate_iou(gt_mask, pred_mask):
 def split_z_stack(tif_file):
     img = tifffile.TiffFile(tif_file)
     image_array = img.asarray()
-    print(f"{image_array.shape[0]} z planes found")
-
+    
     # Load the corresponding .npy file
     npy_file = tif_file.parent / f"{tif_file.stem}_seg.npy"
     data = np.load(npy_file, allow_pickle=True).item()
@@ -69,3 +67,19 @@ def calculate_z_numbers(first_z_number, last_z_number, no_z_planes):
     numbers = [str(int(first_z_number + i * step)).zfill(6) for i in range(no_z_planes)]
     
     return numbers
+
+
+def chunk_image(path_to_image, image_outdir, chunk_size):
+    # read the image
+    img = tifffile.TiffFile(path_to_image).asarray()
+    image_name = path_to_image.stem
+
+    # get the shape of the image
+    shape = img.shape
+    
+    # crop the image and save each chunk
+    for i in range(0, shape[0], chunk_size):
+        for j in range(0, shape[1], chunk_size):
+            chunk = img[i:i+chunk_size, j:j+chunk_size]
+            tifffile.imsave("{}/{}_chunk_{}_{}.tif".format(image_outdir,image_name,i, j), chunk)
+
