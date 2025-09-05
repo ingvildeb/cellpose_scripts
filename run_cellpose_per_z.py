@@ -7,7 +7,7 @@ from utils import generate_cellpose_npy_dict
 
 ## USER SETTINGS
 model_path = r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\2025-09-03_cpsam_iba1_500epochs_wd-0.1_lr-1e-05_normTrue"
-stack_dir = Path(r'Z:\Labmembers\Ingvild\Cellpose\Iba1_model\testing_application\split_apply_combine\\')
+stack_dir = Path(r'Z:\Labmembers\Ingvild\Cellpose\Iba1_model\3_training_stack_chunks_r1\\')
 
 # Cellpose parameters
 flow_threshold = 0.4
@@ -16,6 +16,7 @@ normalize = True
 ## MAIN CODE
 
 # load cellpose model
+print("Loading cellpose model ...")
 model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
 
 # create an out path for individual predictions
@@ -25,6 +26,8 @@ out_path.mkdir(exist_ok=True)
 # loop through stacks in directory
 for stack in stack_dir.glob("*.tif"):
     
+    print(f"Processing stack with name {stack.stem} ...")
+
     # initialize lists to hold all masks and outlines across z planes
     all_masks = []
     all_outlines = []
@@ -84,6 +87,3 @@ for stack in stack_dir.glob("*.tif"):
         # save z stack npy as _seg.npy file
         npy_out_name = stack_dir / f"{stack.stem}_seg.npy"
         np.save(npy_out_name, npy_dict)
-
-        break
-        
