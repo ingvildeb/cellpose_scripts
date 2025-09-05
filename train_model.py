@@ -1,16 +1,24 @@
 from pathlib import Path
 from cellpose import models, io, train
 import matplotlib.pyplot as plt
+from datetime import date
 
 # Define directories using pathlib
-train_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\manual_and_human-in-the-loop\train")
-test_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\manual_and_human-in-the-loop\validation")
+train_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train")
+test_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\5_validation")
 
 # Specify your hyperparameters
-n_epochs = 100
+n_epochs = 500
 weight_decay = 0.1
-learning_rate = 1e-6
+learning_rate = 1e-5
 normalize = True
+
+model_name = "iba1"
+
+
+## MAIN CODE, do not edit
+
+timestamp = str(date.today())
 
 # Define output directory
 out_dir = train_dir / "training_logs"
@@ -27,7 +35,10 @@ images, labels, image_names, test_images, test_labels, image_names_test = output
 model = models.CellposeModel(gpu=True)
 
 # Define model path
-model_path = train_dir / "models" / f"cpsam_neun_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}"
+model_folder = train_dir / "models" 
+model_folder.mkdir(exist_ok=True)
+
+model_path = model_folder / f"{timestamp}_cpsam_{model_name}_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}"
 
 # Train the model
 model_path, train_losses, test_losses = train.train_seg(model.net,
@@ -42,7 +53,7 @@ model_path, train_losses, test_losses = train.train_seg(model.net,
                             model_name=str(model_path))
 
 # Specify the filename
-filename = out_dir / f"cpsam_neun_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}_trainAndTestLosses.txt"
+filename = out_dir / f"cpsam_{model_name}_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}_trainAndTestLosses.txt"
 
 # Open the file in write mode
 with filename.open('w') as f:
@@ -86,7 +97,7 @@ plt.plot(epochs, train_losses, label='Training Loss', marker='o', linestyle='-')
 plt.plot(test_epochs, test_losses, label='Test Loss', marker='o', linestyle='-', color='orange')
 
 # Adding labels and title
-plt.title(f'Model: cpsam_neun_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}')
+plt.title(f'Model: cpsam_{model_name}_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}')
 plt.xlabel('Epochs')
 plt.ylabel('Loss')
 
@@ -98,7 +109,7 @@ plt.legend()
 plt.grid(True)  # Adds a grid for better readability
 
 # Save the plot
-plt.savefig(out_dir / f"cpsam_neun_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}_trainAndTestLosses.svg")
+plt.savefig(out_dir / f"cpsam_{model_name}_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}_trainAndTestLosses.svg")
 
 # Show the plot
 plt.show()
