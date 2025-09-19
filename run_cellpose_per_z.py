@@ -6,11 +6,21 @@ import random
 from utils import generate_cellpose_npy_dict
 
 ## USER SETTINGS
-model_path = r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\2025-09-03_cpsam_iba1_500epochs_wd-0.1_lr-1e-05_normTrue"
-stack_dir = Path(r'Z:\Labmembers\Ingvild\Cellpose\Iba1_model\3_training_stack_chunks_r1\\')
+
+# Set the path to your cellpose model.
+model_path = r"example\path\your_model"
+
+# Set the path to your chunked stacks
+stack_dir = Path(r"example\path\your_path")
 
 # Cellpose parameters
+
+# Choose a flow threshold. The default is 0.4. Increasing flow_threshold makes Cellpose more lenient, 
+# This can lead to the detection of more cells, especially in crowded or complex images, but may also 
+# result in less accurate or ill-shaped masks.
 flow_threshold = 0.4
+
+# Set normalize to True or False. Should normally be True.
 normalize = True
 
 ## MAIN CODE

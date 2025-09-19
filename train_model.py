@@ -24,14 +24,14 @@ script of this repository. Until you run that script for the trained model, the 
 """
 
 # Define directories using pathlib
-train_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train")
-test_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\5_validation")
+train_dir = Path(r"example\path\your_train_directory")
+test_dir = Path(r"example\path\your_test_directory")
 
 # Specify your hyperparameters
 
 # Specify number of epochs - how many times the model gets to see the training data.
 # Recommended setting from cellpose is 100, but longer times may improve performance
-n_epochs = 200
+n_epochs = 100
 
 # Specify weight decay
 weight_decay = 0.1
@@ -39,7 +39,7 @@ weight_decay = 0.1
 # Specify learning rate - essentially how quickly the model learns
 # Recommended setting from cellpose is 1e-5.
 # A lower learning rate may allow you to train for longer without overfitting
-learning_rate = 1e-5
+learning_rate = 1e-6
 
 # Specify normalization behavior. Should generally be set to True.
 normalize = True

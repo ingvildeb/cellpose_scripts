@@ -3,18 +3,18 @@ from pathlib import Path
 import numpy as np
 import os
 from cellpose import models, io
-from tqdm import tqdm  # Import tqdm
+from tqdm import tqdm
 
 ## USER SETTINGS
-model_path = r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\manual_and_human-in-the-loop\train\models\cpsam_neun_100epochs_wd-0.1_lr-1e-06_normTrue"
-chunk_dir = Path(r'Z:\Labmembers\Ingvild\Cellpose\NeuN_model\model0_training_sections\chunked_images\NB058_MIP_021000_021080\\')
-out_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\test_run_and_reconstruct\\")
+model_path = r"example\path\your_model"
+chunk_dir = Path(r"example\path\your_chunked_image_path")
+out_path = Path(r"example\path\your_output_path")
 
 # Cellpose parameters
 
-# Set the flow threshold, between 0 and 1. The smaller the flow threshold, the more certain
-# the model will have to be in order to extract a cell. Thus, higher flow threshold can be 
-# used to increase the number of detected cells. Defaults to 0.4.
+# Choose a flow threshold. The default is 0.4. Increasing flow_threshold makes Cellpose more lenient, 
+# This can lead to the detection of more cells, especially in crowded or complex images, but may also 
+# result in less accurate or ill-shaped masks.
 flow_threshold = 0.4
 
 # Set normalize to True or False. Should normally be True.

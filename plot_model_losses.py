@@ -14,7 +14,7 @@ structure and letting the script fetch it automatically to avoid any mismatching
 """
 
 # Set the path to your model
-model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\2025-09-19_cpsam_iba1_100epochs_wd-0.1_lr-1e-05_normTrue")
+model_path = Path(r"example\path\your_model")
 
 # Choose what interval of epoch numbers to plot along the x axis.
 # Set to higher interval to avoid very crowded axis with high number of epochs

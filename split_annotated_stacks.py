@@ -9,14 +9,14 @@ from utils import split_annotated_z_stack, calculate_z_numbers
 ### USER PARAMETERS
 
 # Path to your tif and npy images
-image_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\testing_application\split_apply_combine\modified//")
+image_path = Path(r"example\path\your_path")
 
 # Option to not save the first and last z plane of the stack
 # Set to True if you did not label these planes
-omit_first_and_last = False
+omit_first_and_last = True
 
 
-### MAIN CODE, do not edit
+### MAIN CODE
 
 out_path = Path(image_path / "split_files")
 
