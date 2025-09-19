@@ -7,9 +7,9 @@ from utils import calculate_iou
 import pandas as pd
 
 ## USER PARAMETERS
-model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\2025-09-08_cpsam_iba1_500epochs_wd-0.1_lr-1e-05_normTrue")
+model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\2025-09-19_cpsam_iba1_100epochs_wd-0.1_lr-1e-05_normTrue")
 image_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\5_validation\\")
-flow_threshold = 0.4
+flow_threshold = 0.6
 normalize = True
 
 
@@ -33,15 +33,20 @@ if not row_idx:
 
 idx = row_idx[0]  # Assuming model_name is unique, take the first match
 
-# Check for existing evaluations with the same flow_threshold and normalize_test
+# Check for existing evaluations with the same parameters including number of cells
 existing_eval = log_df[(log_df['model'] == model_name) & 
-                       (log_df['normalize_apply'] == normalize)]
+                       (log_df['normalize_apply'] == normalize) &
+                       (log_df['flow_threshold'] == flow_threshold)]
 
 if len(existing_eval) > 0:
-    raise ValueError(f"Model {model_name} has already been assessed with flow threshold {flow_threshold} and normalization {normalize}.")
+    raise ValueError(f"Model {model_name} has already been assessed with these parameters.")
 
 # Initialize lists to hold metrics for all files
 metrics = []
+total_TP = 0
+total_FP = 0
+total_FN = 0
+total_cells = 0
 
 for tif in tif_images:
     img = io.imread(tif)
@@ -105,18 +110,24 @@ for tif in tif_images:
     # Calculate precision, recall, and F1 score
     precision = TP / (TP + FP) if (TP + FP) > 0 else 0
     recall = TP / (TP + FN) if (TP + FN) > 0 else 0
-    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
-    total_cells = TP + FN
+    f1 = 2 * ((precision * recall) / (precision + recall)) if (precision + recall) > 0 else 0
+    cells_in_image = (len(np.unique(manual_masks)) - 1)
+
+    total_TP = total_TP + TP
+    total_FP = total_FP + FP
+    total_FN = total_FN + FN
+
+    total_cells = total_cells + cells_in_image
 
     # Store metrics for the current image pair
-    metrics.append((tif.name, precision, recall, f1, total_cells))
+    metrics.append((tif.name, precision, recall, f1, cells_in_image))
 
     # Print metrics for each image pair
     print(f'File evaluated: {tif.name}')
-    print(f'True Positives Count: {TP}')
     print(f'Precision: {precision:.4f}')
     print(f'Recall: {recall:.4f}')
     print(f'F1 Score: {f1:.4f}')
+    print(f'Number of cells in image: {cells_in_image}')
     print('---')  # Separator for better readability
 
     # Preparing for plotting
@@ -163,18 +174,18 @@ for tif in tif_images:
     plt.savefig(Path(out_path / f"plot_{tif.stem}.svg"))
     plt.show()
 
-# Calculate average metrics
-average_precision = np.mean([m[1] for m in metrics])
-average_recall = np.mean([m[2] for m in metrics])
-average_f1 = np.mean([m[3] for m in metrics])
-total_cells = np.sum([m[4] for m in metrics])
+
+overall_precision = total_TP / (total_TP + total_FP) if (total_TP + total_FP) > 0 else 0
+overall_recall = total_TP / (total_TP + total_FN) if (total_TP + total_FN) > 0 else 0
+overall_f1 = 2 * ((overall_precision * overall_recall) / (overall_precision + overall_recall)) if (overall_precision + overall_recall) > 0 else 0
 
 # Print average metrics
 print('Average Metrics:')
-print(f'Average Precision: {average_precision:.4f}')
-print(f'Average Recall: {average_recall:.4f}')
-print(f'Average F1 Score: {average_f1:.4f}')
+print(f'Average Precision: {overall_precision:.4f}')
+print(f'Average Recall: {overall_recall:.4f}')
+print(f'Average F1 Score: {overall_f1:.4f}')
 print(f'Total number of ground truth cells: {total_cells}')
+
 
 # Check if the existing flow threshold is "N/A" or a number
 existing_row = log_df.loc[idx]
@@ -182,12 +193,12 @@ existing_flow_threshold = existing_row['flow_threshold']
 
 if np.isnan(existing_flow_threshold):
     # Overwrite existing row with new metrics since it's the first test
-    log_df.at[idx, 'precision'] = average_precision
-    log_df.at[idx, 'recall'] = average_recall
-    log_df.at[idx, 'F1'] = average_f1
+    log_df.at[idx, 'precision'] = overall_precision
+    log_df.at[idx, 'recall'] = overall_recall
+    log_df.at[idx, 'F1'] = overall_f1
     log_df.at[idx, 'num_ground_truth_cells'] = total_cells
     log_df.at[idx, 'flow_threshold'] = flow_threshold
-    log_df.at[idx, 'normalize_apply'] = normalize
+    log_df.at[idx, 'normalize_apply'] = str(normalize)
     print(f"Metrics updated for model {model_name}, which was not assessed previously.")
     
 else:
@@ -205,12 +216,12 @@ else:
         'train_dir': existing_row['train_dir'],
         'test_dir': existing_row['test_dir'],
         'time_to_train': existing_row['time_to_train'],
-        'precision': average_precision,
-        'recall': average_recall,
-        'F1': average_f1,
+        'precision': overall_precision,
+        'recall': overall_recall,
+        'F1': overall_f1,
         'num_ground_truth_cells': total_cells,
         'flow_threshold': flow_threshold,
-        'normalize_apply': normalize
+        'normalize_apply': str(normalize)
     }
 
     # Create a DataFrame from the new entry
@@ -233,6 +244,6 @@ with open(csv_file_path, mode='w', newline='') as csv_file:
     writer.writerows(metrics)
 
     # Write average metrics at the end
-    writer.writerow(['Average Metrics', average_precision, average_recall, average_f1, total_cells])
+    writer.writerow(['Average Metrics', overall_precision, overall_recall, overall_f1, total_cells])
 
-print(f'Metrics per iamge have been written to {csv_file_path}')
+print(f'Metrics per image have been written to {csv_file_path}')
