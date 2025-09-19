@@ -25,10 +25,12 @@ be saved to the training_log that was created when you trained the model.
 ## USER PARAMETERS
 
 # Set the path to your model
-model_path = Path(r"example\path\your_model")
+model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\2025-09-19_cpsam_iba1_100epochs_wd-0.1_lr-1e-06_normTrue")
+#model_path = Path(r"example\path\your_model")
 
 # Set the path to your validation images. These should be manually labelled images.
-validation_path = Path(r"example\path\your_validation_path")
+validation_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\5_validation")
+#validation_path = Path(r"example\path\your_validation_path")
 
 # Choose a flow threshold. The default is 0.4. Increasing flow_threshold makes Cellpose more lenient, 
 # This can lead to the detection of more cells, especially in crowded or complex images, but may also 
@@ -171,7 +173,7 @@ for tif in tif_images:
             FN += 1
 
             # Add the mask to the array of false negatives
-            FN_mask += manual_mask.astype(np.uint16)
+            FN_array += manual_mask.astype(np.uint16)
 
     # Calculate precision, recall, and F1 score based on the number of true positives, false positives and false negatives
     precision = TP / (TP + FP) if (TP + FP) > 0 else 0
