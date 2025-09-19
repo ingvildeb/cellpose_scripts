@@ -1,9 +1,9 @@
 # cellpose_scripts
 
-This repository contains scripts to work with cellpose. The scripts were primarily developed to work with Light Sheet Fluorescence Microscopy (LSFM) data from the mouse brain, but may be useful for other purposes as well. Note that the scripts have been made and optimized using chunked images from 2D sections.
+This repository contains scripts to work with cellpose. The scripts were primarily developed to work with Light Sheet Fluorescence Microscopy (LSFM) data from the mouse brain, but may be useful for other purposes as well. The scripts have been made and optimized using chunked images from 2D sections or chunked Z stacks from a range of 2D sections.
 
 ## Script to train and evaluate a cellpose model
-**- train_model.py:** Script to train a cellpose model on training data, with validation data included. Saves losses to a txt file and creates a csv log file (training_record.csv) that will update every time you train a new model, to help you keep track of your model versions.
+**- train_model.py:** Script to train a cellpose model on training data, with validation data included. Saves losses to a txt file and creates a csv log file (training_record.csv) that will update every time you train a new model, to help you keep track of your model versions. 
 
 **- plot_model_losses.py:** Script to plot train and test loss for your trained model. Saves an svg file with the plot.
 
@@ -21,5 +21,5 @@ Sometimes, we find that it is useful for the human to work with a Z stack when l
 
 **- run_cellpose_per_z.py:** Allows you to run a cellpose model on each plane of a z stack individually, and puts them back together into an annotated Z stack. Useful for human-in-the-loop labelling with the Z stack labelling-2D training workflow.
 
-
-
+## Getting started
+I recommend running these scripts from your cellpose environment and using the GPU. Instructions for cellpose installation can be found in their Github https://github.com/MouseLand/cellpose. Most of the neccessary packages required to run scripts in this repository will be installed when installing cellpose.
