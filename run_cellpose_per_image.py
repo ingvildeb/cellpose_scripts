@@ -4,14 +4,27 @@ from cellpose import models, io, transforms
 import numpy as np
 
 ## USER SETTINGS
-model_path = r"Z:/Labmembers/Ingvild/Cellpose/NeuN_model/manual_and_human-in-the-loop/train/models/cpsam_neun_100epochs_wd-0.1_lr-1e-06_normTrue"
-input = Path(r"Z:\Labmembers\Ingvild\Testing_CellPose\demo_tiling_issues\\")
-out_path = Path(r"Z:\Labmembers\Ingvild\Testing_CellPose\demo_tiling_issues\with_python_code\\")
 
+# Set the path to your cellpose model.
+model_path = r"example\path\your_model"
+
+# Set the path to the input image(s). Can be a single tif file or a folder with tif images.
+input = Path(r"example\path\your_path")
+
+# Set the path where you want the output to be stored.
+out_path = Path(r"example\path\your_out_path")
+
+# Cellpose parameters
+
+# Choose a flow threshold. The default is 0.4. Increasing flow_threshold makes Cellpose more lenient, 
+# This can lead to the detection of more cells, especially in crowded or complex images, but may also 
+# result in less accurate or ill-shaped masks.
 flow_threshold = 0.4
+
+# Set normalize to True or False. Should normally be True.
 normalize = True
 
-## MAIN CODE, do not edit
+## MAIN CODE
 out_path.mkdir(exist_ok=True)
 
 model = models.CellposeModel(gpu=True, pretrained_model=model_path)
@@ -23,7 +36,7 @@ if input.is_dir():
     for f in flist:
         img = io.imread(f)
         model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
-        predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize)
+        predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize, diameter=50)
 
         fname = f.stem
         tiff.imwrite(out_path / f"predictions_{fname}.tif", predicted_masks.astype(np.uint8))
@@ -35,7 +48,7 @@ elif input.is_file():
         predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize)
 
         fname = input.stem
-        tiff.imwrite(out_path / f"predictions_{fname}.tif", predicted_masks.astype(np.uint8))
+        tiff.imwrite(out_path / f"predictions_{fname}_withDiam.tif", predicted_masks.astype(np.uint8))
 
 else:
      print("Input must be either a file or a folder. Check your input setting.")
