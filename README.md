@@ -21,5 +21,5 @@ Sometimes, we find that it is useful for the human to work with a Z stack when l
 
 **- run_cellpose_per_z.py:** Allows you to run a cellpose model on each plane of a z stack individually, and puts them back together into an annotated Z stack. Useful for human-in-the-loop labelling with the Z stack labelling-2D training workflow.
 
-
-
+## Getting started
+I recommend running these scripts from your cellpose environment and using the GPU. Instructions for cellpose installation can be found in their Github https://github.com/MouseLand/cellpose. Most of the neccessary packages required to run scripts in this repository will be installed when installing cellpose.
