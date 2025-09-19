@@ -1,6 +1,6 @@
 # cellpose_scripts
 
-This repository contains scripts to work with cellpose. The scripts were primarily developed to work with Light Sheet Fluorescence Microscopy (LSFM) data from the mouse brain, but may be useful for other purposes as well. The scripts have been made and optimized using chunked images from 2D sections.
+This repository contains scripts to work with cellpose. The scripts were primarily developed to work with Light Sheet Fluorescence Microscopy (LSFM) data from the mouse brain, but may be useful for other purposes as well. The scripts have been made and optimized using chunked images from 2D sections or chunked Z stacks from a range of 2D sections.
 
 ## Script to train and evaluate a cellpose model
 **- train_model.py:** Script to train a cellpose model on training data, with validation data included. Saves losses to a txt file and creates a csv log file (training_record.csv) that will update every time you train a new model, to help you keep track of your model versions. 
