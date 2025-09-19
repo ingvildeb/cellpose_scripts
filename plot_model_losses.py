@@ -1,8 +1,20 @@
 import matplotlib.pyplot as plt
 from pathlib import Path
 
+"""
+PLOT CELLPOSE MODEL LOSSES TO A GRAPH
+
+This script allows you to plot the losses of a trained model. The script uses the loss file saved when running the
+train_model.py script.
+
+Please note that you will have problems if you changed your folder structure after running train_model.py.
+If needed, you can specify the path of your loss file directly on line 27. However, I recommend keeping the folder
+structure and letting the script fetch it automatically to avoid any mismatching of model name and losses.
+
+"""
+
 # Set the path to your model
-model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\cpsam_iba1_500epochs_wd-0.1_lr-1e-06_normTrue")
+model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\2025-09-19_cpsam_iba1_100epochs_wd-0.1_lr-1e-05_normTrue")
 
 # Choose what interval of epoch numbers to plot along the x axis.
 # Set to higher interval to avoid very crowded axis with high number of epochs
@@ -12,8 +24,12 @@ plot_every = 50
 train_color = 'blue'
 test_color = 'orange'
 
+
+
 ### MAIN CODE
 loss_dir = model_path.parent.parent / "training_logs" / "model_loss_eval"
+
+# Edit with caution if you changed the folder structure after running train_model.py
 loss_file =  loss_dir / f"{model_path.name}_trainAndTestLosses.txt"
 
 # Plot the train and test losses

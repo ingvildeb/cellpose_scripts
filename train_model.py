@@ -3,27 +3,62 @@ from cellpose import models, io, train
 from datetime import date, datetime
 import pandas as pd
 
+
+"""
+CELLPOSE MODEL TRAINING AND DOCUMENTATION SCRIPT
+
+This script allows you to train a cellpose model with a train and test set specified.
+Simply input your directories and desired hyperparameters under user settings and run the whole script.
+
+The script will generate a set of outputs in a folder called "training_logs" located in your training directory:
+
+images_per_model_logs: folder with csv logs of which files were used for training and validation of the model. Just
+for documentation purposes, may or may not be useful later.
+
+model_loss_eval: folder with txt files containing the train and test loss for the model. You can create a graph of
+the losses across epochs with this txt file using the plot_model_losses.py script in this repository.
+
+training_log.csv: csv file with metadata about the model training, including hyperparameters, train and test directory.
+The training log csv file will have columns for model performance data, which can be acquired using the calculate_model_performance.py
+script of this repository. Until you run that script for the trained model, the cells will say "N/A".
+"""
+
 # Define directories using pathlib
 train_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train")
 test_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\5_validation")
 
 # Specify your hyperparameters
+
+# Specify number of epochs - how many times the model gets to see the training data.
+# Recommended setting from cellpose is 100, but longer times may improve performance
 n_epochs = 200
+
+# Specify weight decay
 weight_decay = 0.1
-learning_rate = 1e-6
+
+# Specify learning rate - essentially how quickly the model learns
+# Recommended setting from cellpose is 1e-5.
+# A lower learning rate may allow you to train for longer without overfitting
+learning_rate = 1e-5
+
+# Specify normalization behavior. Should generally be set to True.
 normalize = True
 
 # Give a descriptor for your model, typically a name for the signal
 model_name = "iba1"
 
+
 ## MAIN CODE, do not edit
 
+# Set up timestamp and starting time
 timestamp = str(date.today())
 start_time = datetime.now()
 
-# Define output directory
+# Define output directory and create it if it does not exist
 out_dir = train_dir / "training_logs"
-out_dir.mkdir(parents=True, exist_ok=True)  # Make sure the output directory exists
+out_dir.mkdir(parents=True, exist_ok=True)
+
+# Read log file (if it exists) or create empty dataframe to hold log if not
 log_out = out_dir / "training_record.csv"
 
 if log_out.exists():
@@ -31,21 +66,24 @@ if log_out.exists():
 else:
     log_df = pd.DataFrame()
 
-
+# Set up for training, load train and test data
 io.logger_setup()
 
 # Convert train_dir and test_dir to string
-output = io.load_train_test_data(str(train_dir), str(test_dir), 
-                                  mask_filter="_seg.npy", look_one_level_down=False)
+output = io.load_train_test_data(str(train_dir), 
+                                 str(test_dir), 
+                                 mask_filter="_seg.npy", 
+                                 look_one_level_down=False)
 
 images, labels, image_names, test_images, test_labels, image_names_test = output
 
 model = models.CellposeModel(gpu=True)
 
-# Define model path
+# Define model path and create it if it does not exist
 model_folder = train_dir / "models" 
 model_folder.mkdir(exist_ok=True)
 
+# Define the name of the model file with timestamp and hyperparameters included
 model_out_name = f"{timestamp}_cpsam_{model_name}_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}"
 model_path = model_folder / model_out_name
 
@@ -61,15 +99,18 @@ model_path, train_losses, test_losses = train.train_seg(model.net,
                             normalize=normalize,
                             model_name=str(model_path))
 
+# Set end time and calculate elapsed time it took to train the model
 end_time = datetime.now()
 elapsed_time = end_time - start_time
 
-# SAVE TXT FILE WITH LOSSES
+# Save txt file with the losses
 
-# Specify the filename
-filename = out_dir / "model_loss_eval" / f"{model_out_name}_trainAndTestLosses.txt"
+# Specify the directory and create if it does not exist
+loss_dir = out_dir / "model_loss_eval"
+loss_dir.mkdir(exist_ok=True, parents=True)
+filename = loss_dir / f"{model_out_name}_trainAndTestLosses.txt"
 
-# Open the file in write mode
+# Open the file and write losses
 with filename.open('w') as f:
     # Write the header
     f.write("Epoch,Training Loss,Test Loss\n")
@@ -79,7 +120,7 @@ with filename.open('w') as f:
 
 print(f"Losses saved to {filename}")
 
-# SAVE ALL THE TRAINING INFO TO TRAINING RECORD
+# Save all the training information in the log file
 
 # Assign a unique ascending model_number
 if log_df.empty:
@@ -112,7 +153,7 @@ new_row = {
 log_df = pd.concat([log_df, pd.DataFrame([new_row])], ignore_index=True)
 log_df.to_csv(log_out, index=False)
 
-# SAVE LOG FILES LISTING THE TRAIN AND TEST UIMAGES
+# Create log files to store the names of training and test images
 # Prepare the test_images_list as a DataFrame with the column named after model_number
 img_logs_out = out_dir / "images_per_model_logs"
 img_logs_out.mkdir(parents=True, exist_ok=True)
