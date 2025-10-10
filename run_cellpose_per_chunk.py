@@ -6,9 +6,14 @@ from cellpose import models, io
 from tqdm import tqdm
 
 ## USER SETTINGS
-model_path = r"example\path\your_model"
-chunk_dir = Path(r"example\path\your_chunked_image_path")
-out_path = Path(r"example\path\your_output_path")
+model_path = r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\4_train\models\2025-10-06_cpsam_MOBP_500epochs_wd-0.1_lr-1e-05_normTrue"
+#model_path = r"example\path\your_model"
+
+chunk_dir = Path(r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\test_application\LJS024_MIP_014880_014940")
+#chunk_dir = Path(r"example\path\your_chunked_image_path")
+
+out_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\test_application")
+#out_path = Path(r"example\path\your_output_path")
 
 # Cellpose parameters
 
@@ -23,7 +28,7 @@ normalize = True
 
 ## MAIN CODE, do not edit
 image_name = chunk_dir.stem
-orig_image_path = chunk_dir.parent.parent / f"{image_name}.tif"
+orig_image_path = chunk_dir.parent / f"{image_name}.tif"
 orig_image = tifffile.imread(orig_image_path)
 expected_shape = orig_image.shape
 out_path.mkdir(exist_ok=True)
