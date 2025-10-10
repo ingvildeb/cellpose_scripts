@@ -6,13 +6,16 @@ import numpy as np
 ## USER SETTINGS
 
 # Set the path to your cellpose model.
-model_path = r"example\path\your_model"
+model_path = r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\4_train\models\2025-10-06_cpsam_MOBP_500epochs_wd-0.1_lr-1e-05_normTrue_84train-images"
+#model_path = r"example\path\your_model"
 
 # Set the path to the input image(s). Can be a single tif file or a folder with tif images.
-input = Path(r"example\path\your_path")
+input = Path(r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\test_application")
+#input = Path(r"example\path\your_path")
 
 # Set the path where you want the output to be stored.
-out_path = Path(r"example\path\your_out_path")
+out_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\test_application")
+#out_path = Path(r"example\path\your_out_path")
 
 # Cellpose parameters
 
@@ -36,7 +39,7 @@ if input.is_dir():
     for f in flist:
         img = io.imread(f)
         model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
-        predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize, diameter=50)
+        predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize)
 
         fname = f.stem
         tiff.imwrite(out_path / f"predictions_{fname}.tif", predicted_masks.astype(np.uint8))
@@ -48,7 +51,7 @@ elif input.is_file():
         predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize)
 
         fname = input.stem
-        tiff.imwrite(out_path / f"predictions_{fname}_withDiam.tif", predicted_masks.astype(np.uint8))
+        tiff.imwrite(out_path / f"predictions_{fname}.tif", predicted_masks.astype(np.uint8))
 
 else:
      print("Input must be either a file or a folder. Check your input setting.")
