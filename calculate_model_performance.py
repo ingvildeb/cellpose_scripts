@@ -25,11 +25,11 @@ be saved to the training_log that was created when you trained the model.
 ## USER PARAMETERS
 
 # Set the path to your model
-model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\4_train\models\2025-09-19_cpsam_iba1_100epochs_wd-0.1_lr-1e-06_normTrue")
+model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\4_train\models\2025-10-09_cpsam_MOBP_1000epochs_wd-0.1_lr-1e-06_normTrue")
 #model_path = Path(r"example\path\your_model")
 
 # Set the path to your validation images. These should be manually labelled images.
-validation_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\5_validation")
+validation_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\6_test")
 #validation_path = Path(r"example\path\your_validation_path")
 
 # Choose a flow threshold. The default is 0.4. Increasing flow_threshold makes Cellpose more lenient, 
@@ -42,6 +42,8 @@ normalize = True
 
 # Choose the file type for your output. svg is good if you want to incorporate it in a figure for a paper.
 file_type = "svg"
+
+final_test = True
 
 ## MAIN CODE
 
@@ -73,8 +75,14 @@ existing_eval = log_df[(log_df['model'] == model_name) &
                        (log_df['flow_threshold'] == flow_threshold)]
 
 # Raise error if evaluation has already been done
-if len(existing_eval) > 0:
-    raise ValueError(f"Model {model_name} has already been assessed with these parameters.")
+
+if final_test:
+    if len(existing_eval) == 0:
+        raise ValueError(f"Model {model_name} has never been assessed with these parameters. Are you sure this is your final parameters for test set?")
+
+else:
+    if len(existing_eval) > 0:
+        raise ValueError(f"Model {model_name} has already been assessed with these parameters.")
 
 # Load the cellpose model
 model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
@@ -245,7 +253,13 @@ for tif in tif_images:
     plt.tight_layout()
 
     # Save the figure
-    plt.savefig(Path(out_path / f"plot_{tif.stem}.{file_type}"))
+    if final_test:
+        out_path = validation_path / "f_score_eval"
+        out_path.mkdir(exist_ok=True)
+        plt.savefig(Path(out_path / f"plot_{tif.stem}.{file_type}"))
+    else:
+        plt.savefig(Path(out_path / f"plot_{tif.stem}.{file_type}"))
+
     plt.show()
 
 # Calculate the overall precision, recall and F1 score (based on all manual masks across all images)
@@ -307,20 +321,15 @@ else:
 
     # Concatenate the new entry DataFrame with the existing log_df
     log_df = pd.concat([log_df, new_entry_df], ignore_index=True)
-    print(f"New metrics written to log for model {model_name} with flow threshold {flow_threshold} and normalization {normalize}.")
-
-# Save the updated log_df back to the CSV file
-log_df.to_csv(log_path, index=False)
-print(f"Log updated and saved to {log_path}.")
-
-# Write metrics per image to a CSV file
-csv_file_path = Path(out_path / f"metrics_per_image.csv")
 
 # Calculate average metrics across images
 # This may be slightly different than the overall metrics
 average_precision = np.mean([m[1] for m in metrics])
 average_recall = np.mean([m[2] for m in metrics])
 average_f1 = np.mean([m[3] for m in metrics])
+
+# Write metrics per image to a CSV file
+csv_file_path = Path(out_path / f"metrics_per_image.csv")
 
 with open(csv_file_path, mode='w', newline='') as csv_file:
     writer = csv.writer(csv_file)
@@ -331,3 +340,18 @@ with open(csv_file_path, mode='w', newline='') as csv_file:
     writer.writerow(['Average Metrics', average_precision, average_recall, average_f1, total_cells])
 
 print(f'Metrics per image have been written to {csv_file_path}')
+
+
+# Save the updated log_df back to the CSV file
+if final_test:
+    new_entry_df.to_csv(out_path / "results_test_data.csv", index=False)
+    print(f"Overall metrics and model info written to {out_path}")
+else:
+    log_df.to_csv(log_path, index=False)
+    print(f"Log updated and saved to {log_path}.")
+
+
+
+
+
+
