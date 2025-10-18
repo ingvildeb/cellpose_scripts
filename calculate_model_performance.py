@@ -43,7 +43,9 @@ normalize = True
 # Choose the file type for your output. svg is good if you want to incorporate it in a figure for a paper.
 file_type = "svg"
 
-final_test = True
+# Set this to True only if it is your final test of the model on a test set independent of the validation set used for training and continuous F score evaluation
+# With this option set to True, results will be saved to a separate report under teh validation_path
+final_test = False
 
 ## MAIN CODE
 
