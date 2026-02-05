@@ -20,17 +20,17 @@ represent the raw image, ground truth labels, predictions, true positives, false
 The overall precision, recall and F1 score (which may differ slightly from the score averaged across images), will
 be saved to the training_log that was created when you trained the model.
 
+Important: If you are evaluating your model on your final test set, make sure to set final_test to True.
+
 """
 
 ## USER PARAMETERS
 
 # Set the path to your model
-model_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\4_train\models\2025-10-09_cpsam_MOBP_1000epochs_wd-0.1_lr-1e-06_normTrue")
-#model_path = Path(r"example\path\your_model")
+model_path = Path(r"example\path\your_model")
 
 # Set the path to your validation images. These should be manually labelled images.
-validation_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\MOBP_model\6_test")
-#validation_path = Path(r"example\path\your_validation_path")
+validation_path = Path(r"example\path\your_validation_path")
 
 # Choose a flow threshold. The default is 0.4. Increasing flow_threshold makes Cellpose more lenient, 
 # This can lead to the detection of more cells, especially in crowded or complex images, but may also 
@@ -47,7 +47,7 @@ file_type = "svg"
 # With this option set to True, results will be saved to a separate report under teh validation_path
 final_test = False
 
-## MAIN CODE
+## MAIN CODE, do not edit
 
 # Set IOU threshold. 0.5 is pretty standard in the field and should generally not be changed.
 iou_threshold = 0.5
