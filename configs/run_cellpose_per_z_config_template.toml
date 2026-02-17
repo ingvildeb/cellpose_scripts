@@ -1,0 +1,8 @@
+# Copy this file to run_cellpose_per_z_config_local.toml and edit local values.
+
+model_path = "example/path/your_model"
+stack_dir = "example/path/your_path"
+
+flow_threshold = 0.4
+normalize = true
+use_gpu = true

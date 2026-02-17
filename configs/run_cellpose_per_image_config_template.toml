@@ -1,0 +1,9 @@
+# Copy this file to run_cellpose_per_image_config_local.toml and edit local values.
+
+model_path = "example/path/your_model"
+input_path = "example/path/your_path"
+out_path = "example/path/your_out_path"
+
+flow_threshold = 0.4
+normalize = true
+use_gpu = true

@@ -23,3 +23,18 @@ Sometimes, we find that it is useful for the human to work with a Z stack when l
 
 ## Getting started
 I recommend running these scripts from your cellpose environment and using the GPU. Instructions for cellpose installation can be found in their Github https://github.com/MouseLand/cellpose. Most of the neccessary packages required to run scripts in this repository will be installed when installing cellpose.
+
+## TOML configuration workflow
+The scripts use shared config loading from `io_helpers.py`, matching the local/template pattern:
+
+- Scripts load config automatically using:
+  - `configs/<script_config_name>_local.toml` (preferred)
+  - `configs/<script_config_name>_template.toml` (fallback)
+- Keep `_template.toml` files in git.
+- Copy them to `_local.toml` for machine-specific paths.
+
+Configured scripts:
+- `run_cellpose_per_image.py` → `run_cellpose_per_image_config_local.toml`
+- `run_cellpose_per_chunk.py` → `run_cellpose_per_chunk_config_local.toml`
+- `run_cellpose_per_z.py` → `run_cellpose_per_z_config_local.toml`
+- `split_annotated_stacks.py` → `split_annotated_stacks_config_local.toml`
