@@ -29,6 +29,9 @@ flow_threshold = 0.6
 # Set normalize to True or False. Should normally be True.
 normalize = True
 
+# Choose whether to use GPU. Set False if running on CPU only.
+use_gpu = True
+
 
 ## MAIN CODE, do not edit
 
@@ -37,7 +40,7 @@ normalize = True
 chunk_files = list(chunk_dir.glob("*.tif"))
 
 # Load model once and reuse for all chunks
-model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
+model = models.CellposeModel(gpu=use_gpu, pretrained_model=str(model_path))
 
 if reconstruct:
 
