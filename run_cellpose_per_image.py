@@ -10,8 +10,8 @@ model_path = r"Z:\Labmembers\Ingvild\Cellpose\Iba1_model\5_train\models\2025-09-
 #model_path = r"example\path\your_model"
 
 # Set the path to the input image(s). Can be a single tif file or a folder with tif images.
-input = Path(r"Z:\Labmembers\Ingvild\RM1\HPC_scripts\testing\hpc_vs_local\masks_and_coords\test_MIPS")
-#input = Path(r"example\path\your_path")
+input_path = Path(r"Z:\Labmembers\Ingvild\RM1\HPC_scripts\testing\hpc_vs_local\masks_and_coords\test_MIPS")
+#input_path = Path(r"example\path\your_path")
 
 # Set the path where you want the output to be stored.
 out_path = Path(r"Z:\Labmembers\Ingvild\RM1\HPC_scripts\testing\hpc_vs_local\masks_and_coords\masks_32c_pythonIngvild\\")
@@ -27,30 +27,33 @@ flow_threshold = 0.4
 # Set normalize to True or False. Should normally be True.
 normalize = True
 
+# Choose whether to use GPU. Set False if running on CPU only.
+use_gpu = True
+
 ## MAIN CODE
 out_path.mkdir(exist_ok=True)
 
-model = models.CellposeModel(gpu=True, pretrained_model=model_path)
+model = models.CellposeModel(gpu=use_gpu, pretrained_model=model_path)
 
-if input.is_dir():
+if input_path.is_dir():
 
-    flist = input.glob("*.tif")
+    flist = input_path.glob("*.tif")
 
     for f in flist:
         img = io.imread(f)
-        #model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
+        #model = models.CellposeModel(gpu=use_gpu, pretrained_model=str(model_path))
         predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize)
 
         fname = f.stem
         tiff.imwrite(out_path / f"masks_{fname}.tif", predicted_masks)
 
-elif input.is_file():
+elif input_path.is_file():
         
-        img = io.imread(input)
-        #model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
+        img = io.imread(input_path)
+        #model = models.CellposeModel(gpu=use_gpu, pretrained_model=str(model_path))
         predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize)
 
-        fname = input.stem
+        fname = input_path.stem
         tiff.imwrite(out_path / f"predictions_{fname}.tif", predicted_masks)
 
 else:

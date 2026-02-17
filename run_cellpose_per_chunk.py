@@ -29,12 +29,18 @@ flow_threshold = 0.6
 # Set normalize to True or False. Should normally be True.
 normalize = True
 
+# Choose whether to use GPU. Set False if running on CPU only.
+use_gpu = True
+
 
 ## MAIN CODE, do not edit
 
 # List all chunk files in the chunk directory
 # Convert to a list for tqdm to work
 chunk_files = list(chunk_dir.glob("*.tif"))
+
+# Load model once and reuse for all chunks
+model = models.CellposeModel(gpu=use_gpu, pretrained_model=str(model_path))
 
 if reconstruct:
 
@@ -47,7 +53,6 @@ if reconstruct:
     # Use tqdm to show progress
     for chunk_file in tqdm(chunk_files, desc="Processing chunks", unit="chunk"):
         img = io.imread(chunk_file)
-        model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
         predicted_masks, _, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize)
 
         # Parse the filename to get chunk coordinates
@@ -80,9 +85,8 @@ else:
     # Use tqdm to show progress
     for chunk_file in tqdm(chunk_files, desc="Processing chunks", unit="chunk"):
         img = io.imread(chunk_file)
-        model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
         predicted_masks, flows, _ = model.eval(img, flow_threshold=flow_threshold, normalize=normalize)
 
         # generate npy file for the z plane and save to individual z output folder
-        tiff.imwrite(chunk_file.parent / f"{chunk_file.stem}_masks.tif", predicted_masks.astype(np.uint8))
+        tiff.imwrite(chunk_file.parent / f"{chunk_file.stem}_masks.tif", predicted_masks)
         io.masks_flows_to_seg(img, predicted_masks, flows, chunk_file)

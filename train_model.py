@@ -44,6 +44,9 @@ learning_rate = 1e-6
 # Specify normalization behavior. Should generally be set to True.
 normalize = True
 
+# Choose whether to use GPU. Set False if running on CPU only.
+use_gpu = True
+
 # Give a descriptor for your model, typically a name for the signal
 model_name = "iba1"
 
@@ -77,7 +80,7 @@ output = io.load_train_test_data(str(train_dir),
 
 images, labels, image_names, test_images, test_labels, image_names_test = output
 
-model = models.CellposeModel(gpu=True)
+model = models.CellposeModel(gpu=use_gpu)
 
 # Define model path and create it if it does not exist
 model_folder = train_dir / "models" 
@@ -126,7 +129,8 @@ print(f"Losses saved to {filename}")
 if log_df.empty:
     model_number = 1
 else:
-    model_number = log_df['model_number'].max() + 1
+    numeric_model_numbers = pd.to_numeric(log_df['model_number'], errors='coerce').dropna()
+    model_number = int(numeric_model_numbers.max()) + 1 if not numeric_model_numbers.empty else 1
 
 # Create a new row dictionary with values you want to log
 new_row = {
@@ -158,15 +162,14 @@ log_df.to_csv(log_out, index=False)
 img_logs_out = out_dir / "images_per_model_logs"
 img_logs_out.mkdir(parents=True, exist_ok=True)
 
-train_images_list = [i.split("\\")[-1] for i in image_names]
+train_images_list = [Path(i).name for i in image_names]
 train_images_df = pd.DataFrame({f"Train images for model {model_number}": train_images_list})
 train_images_out = img_logs_out / f"train_images_model{model_number}_{model_out_name}.csv"
 
-test_images_list = [i.split("\\")[-1] for i in image_names_test]
+test_images_list = [Path(i).name for i in image_names_test]
 test_images_df = pd.DataFrame({f"Test images for model {model_number}": test_images_list})
 test_images_out = img_logs_out / f"test_images_model{model_number}_{model_out_name}.csv"
 
 # Save log_df and test_images_list to separate sheets in one Excel workbook
 train_images_df.to_csv(train_images_out, index=False)
 test_images_df.to_csv(test_images_out, index=False)
-

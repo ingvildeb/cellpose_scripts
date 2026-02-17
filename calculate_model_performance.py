@@ -52,6 +52,9 @@ training_log_path = Path(
 flow_threshold = 0.6
 normalize = True
 
+# Choose whether to use GPU. Set False if running on CPU only.
+use_gpu = True
+
 # Evaluation params
 iou_threshold = 0.5
 
@@ -162,7 +165,7 @@ out_path.mkdir(parents=True, exist_ok=False)
 metrics_csv_path = out_path / "metrics_per_image.csv"
 
 # Load Cellpose model
-model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
+model = models.CellposeModel(gpu=use_gpu, pretrained_model=str(model_path))
 
 # --------------------
 # RUN EVALUATION
@@ -570,7 +573,7 @@ eval_row = {
     "model": model_name,
     "model_path": str(model_path),
     "validation_dir": str(validation_path),
-    "out_dir": out_path,
+    "out_dir": str(out_path),
     
     "n_images": len(tif_images),
     "total_gt_cells": total_cells,

@@ -23,11 +23,14 @@ flow_threshold = 0.4
 # Set normalize to True or False. Should normally be True.
 normalize = True
 
+# Choose whether to use GPU. Set False if running on CPU only.
+use_gpu = True
+
 ## MAIN CODE
 
 # load cellpose model
 print("Loading cellpose model ...")
-model = models.CellposeModel(gpu=True, pretrained_model=str(model_path))
+model = models.CellposeModel(gpu=use_gpu, pretrained_model=str(model_path))
 
 # create an out path for individual predictions
 out_path = stack_dir / "individual_z_predictions"
