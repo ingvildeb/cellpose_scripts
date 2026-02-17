@@ -570,7 +570,7 @@ eval_row = {
     "model": model_name,
     "model_path": str(model_path),
     "validation_dir": str(validation_path),
-    "out_dir": out_path,
+    "out_dir": str(out_path),
     
     "n_images": len(tif_images),
     "total_gt_cells": total_cells,
