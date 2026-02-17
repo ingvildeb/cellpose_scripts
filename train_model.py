@@ -126,7 +126,8 @@ print(f"Losses saved to {filename}")
 if log_df.empty:
     model_number = 1
 else:
-    model_number = log_df['model_number'].max() + 1
+    numeric_model_numbers = pd.to_numeric(log_df['model_number'], errors='coerce').dropna()
+    model_number = int(numeric_model_numbers.max()) + 1 if not numeric_model_numbers.empty else 1
 
 # Create a new row dictionary with values you want to log
 new_row = {
@@ -169,4 +170,3 @@ test_images_out = img_logs_out / f"test_images_model{model_number}_{model_out_na
 # Save log_df and test_images_list to separate sheets in one Excel workbook
 train_images_df.to_csv(train_images_out, index=False)
 test_images_df.to_csv(test_images_out, index=False)
-

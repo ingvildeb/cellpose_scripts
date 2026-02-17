@@ -210,11 +210,13 @@ def split_annotated_z_stack(tif_file):
 
 
 def calculate_z_numbers(first_z_number, last_z_number, no_z_planes):
-    
+    if no_z_planes <= 1:
+        raise ValueError("no_z_planes must be > 1 for calculate_z_numbers")
+
     distance = last_z_number - first_z_number
     step = distance / (no_z_planes - 1)
     numbers = [str(int(first_z_number + i * step)).zfill(6) for i in range(no_z_planes)]
-    
+
     return numbers
 
 
