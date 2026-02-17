@@ -3,11 +3,152 @@ import tifffile
 from pathlib import Path
 import random
 
-def calculate_iou(gt_mask, pred_mask):
-    intersection = np.logical_and(gt_mask, pred_mask).sum()
-    union = np.logical_or(gt_mask, pred_mask).sum()
-    iou = intersection / union if union > 0 else 0
-    return iou
+
+def calculate_iou(mask_a: np.ndarray, mask_b: np.ndarray) -> float:
+    """IoU for two boolean masks."""
+    intersection = np.logical_and(mask_a, mask_b).sum()
+    union = np.logical_or(mask_a, mask_b).sum()
+    return (intersection / union) if union > 0 else 0.0
+
+
+def match_instances_iou(manual_masks: np.ndarray,
+                        predicted_masks: np.ndarray,
+                        iou_threshold: float = 0.5):
+    """
+    Greedy 1-to-1 matching by IoU (descending).
+    Returns:
+      matches: list of (gt_id, pred_id, iou)
+      FP_ids: list of unmatched pred ids
+      FN_ids: list of unmatched gt ids
+    """
+    gt_ids = [i for i in np.unique(manual_masks) if i != 0]
+    pr_ids = [i for i in np.unique(predicted_masks) if i != 0]
+
+    # Build candidate pairs (only those with nonzero intersection)
+    pairs = []
+    for gt_id in gt_ids:
+        gt = (manual_masks == gt_id)
+        for pr_id in pr_ids:
+            pr = (predicted_masks == pr_id)
+
+            # Quick skip if no overlap (saves time)
+            if not np.any(np.logical_and(gt, pr)):
+                continue
+
+            iou = calculate_iou(gt, pr)
+            pairs.append((iou, gt_id, pr_id))
+
+    # Sort by IoU descending
+    pairs.sort(reverse=True, key=lambda x: x[0])
+
+    matched_gt = set()
+    matched_pr = set()
+    matches = []
+
+    # Greedy assignment
+    for iou, gt_id, pr_id in pairs:
+        if iou < iou_threshold:
+            break
+        if gt_id in matched_gt or pr_id in matched_pr:
+            continue
+        matched_gt.add(gt_id)
+        matched_pr.add(pr_id)
+        matches.append((gt_id, pr_id, iou))
+
+    FP_ids = [pr_id for pr_id in pr_ids if pr_id not in matched_pr]
+    FN_ids = [gt_id for gt_id in gt_ids if gt_id not in matched_gt]
+
+    return matches, FP_ids, FN_ids
+
+
+def label_to_random_color(label_img, color_lut=None, seed=0, bg_color=(0, 0, 0)):
+    """
+    If color_lut is provided: dict {label_id: (r,g,b)} used directly.
+    Else: generate random colors with seed and return (rgb, color_lut).
+    """
+    labels = np.unique(label_img)
+    labels = labels[labels != 0]
+
+    if color_lut is None:
+        rng = np.random.default_rng(seed)
+        color_lut = {int(lab): tuple(rng.integers(0, 255, size=3, dtype=np.uint8).tolist())
+                     for lab in labels}
+    else:
+        # make sure any new labels get a color (rare, but safe)
+        missing = [int(l) for l in labels if int(l) not in color_lut]
+        if missing:
+            rng = np.random.default_rng(seed)
+            for lab in missing:
+                color_lut[lab] = tuple(rng.integers(0, 255, size=3, dtype=np.uint8).tolist())
+
+    rgb = np.zeros((*label_img.shape, 3), dtype=np.uint8)
+    rgb[:] = bg_color
+    for lab, col in color_lut.items():
+        rgb[label_img == lab] = col
+
+    return rgb, color_lut
+
+def instance_centroid(mask: np.ndarray) -> tuple[int, int]:
+    """
+    Centroid of a boolean mask in (row, col). Uses mean of pixel coordinates.
+    Rounds to nearest integer.
+    """
+    coords = np.argwhere(mask)
+    if coords.size == 0:
+        return (0, 0)
+    r = int(np.round(coords[:, 0].mean()))
+    c = int(np.round(coords[:, 1].mean()))
+    return (r, c)
+
+
+def centroid_inside_gt_matching(manual_masks: np.ndarray,
+                                predicted_masks: np.ndarray):
+    """
+    Detection-style matching:
+    A predicted instance is TP if its centroid falls inside ANY GT instance.
+    1-to-1 enforced: each GT can be matched to at most one predicted instance.
+
+    Returns:
+      matches_centroid: list of (gt_id, pred_id, (r, c))
+      FP_pred_ids: list of predicted ids not matched
+      FN_gt_ids: list of GT ids not matched
+    """
+    # Get all unique IDs in gt and pred files, excluding 0 as this is background
+    gt_ids = [i for i in np.unique(manual_masks) if i != 0]
+    pr_ids = [i for i in np.unique(predicted_masks) if i != 0]
+
+    matched_gt = set()
+    matches_centroid = []
+    FP_pred_ids = []
+
+    H, W = manual_masks.shape
+
+    for pr_id in pr_ids:
+        pr = (predicted_masks == pr_id)
+        
+        # Get row and column value of the pr centroid
+        r, c = instance_centroid(pr)
+
+        # Clip to image bounds; ensures centroid is inside the image
+        r = max(0, min(H - 1, r))
+        c = max(0, min(W - 1, c))
+
+        # Get the value of the corresponding pixel in the gt_image
+        gt_id = int(manual_masks[r, c])
+
+        # Check whether gt_id is not 0 (i.e. it is an object) and append to matches_centroids list if it is not already there
+        if gt_id > 0 and gt_id not in matched_gt:
+            matched_gt.add(gt_id)
+            matches_centroid.append((gt_id, pr_id, (r, c)))
+            
+        # If gt_id on the centroid_coordinate is 0 or if it was already matched to a prediction, append to FP list
+        else:
+            FP_pred_ids.append(pr_id)
+            
+    # Append any ids that are not TP or FP to FN
+    FN_gt_ids = [gt_id for gt_id in gt_ids if gt_id not in matched_gt]
+
+    return matches_centroid, FP_pred_ids, FN_gt_ids
 
 def generate_cellpose_npy_dict(masks, outlines, colors, filepath):
         
