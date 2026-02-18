@@ -1,0 +1,20 @@
+# Copy this file to run_cellpose_per_chunk_config_local.toml and edit local values.
+
+# Set the path to your cellpose model.
+model_path = 'example/path/your_model'
+
+# Set the path to your chunk image folder
+chunk_dir = 'example/path/your_chunked_image_path'
+
+# Set the path to your output directory, i.e. where you want the mask image to be saved
+out_path = 'example/path/your_output_path'
+
+# Choose whether or not to reconstruct the image from the chunks.
+reconstruct = true
+
+# reconstruct = true, give the path to your raw (non-chunked) image (needed to extract image dimensions)
+orig_image_path = 'example/path/your_raw_image'
+
+flow_threshold = 0.4
+normalize = true
+use_gpu = true

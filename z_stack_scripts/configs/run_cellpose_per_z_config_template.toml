@@ -1,10 +1,10 @@
 # Copy this file to run_cellpose_per_z_config_local.toml and edit local values.
 
 # Set the path to your cellpose model.
-model_path = example/path/your_model
+model_path = 'example/path/your_model'
 
 # Set the path to your chunked stacks
-stack_dir = example/path/your_path
+stack_dir = 'example/path/your_path'
 
 
 # Choose a flow threshold. The default is 0.4. Increasing flow_threshold makes Cellpose more lenient, 

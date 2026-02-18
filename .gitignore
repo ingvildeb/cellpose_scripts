@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 # Local script configs
-configs/*_local.toml
+**/configs/*_local.toml
