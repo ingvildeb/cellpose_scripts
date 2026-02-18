@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
 from pathlib import Path
+import sys
+
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+from utils.io_helpers import load_script_config, normalize_user_path
 
 """
 PLOT CELLPOSE MODEL LOSSES TO A GRAPH
@@ -13,16 +18,23 @@ structure and letting the script fetch it automatically to avoid any mismatching
 
 """
 
-# Set the path to your model
-model_path = Path(r"example\path\your_model")
+# -------------------------
+# CONFIG LOADING (shared helper)
+# -------------------------
+cfg = load_script_config(Path(__file__), "plot_model_losses_config")
+
+# -------------------------
+# CONFIG PARAMETERS
+# -------------------------
+model_path = normalize_user_path(cfg["model_path"])
 
 # Choose what interval of epoch numbers to plot along the x axis.
 # Set to higher interval to avoid very crowded axis with high number of epochs
-plot_every = 50
+plot_every = cfg["plot_every"]
 
 # Choose the colors of your train and test loss lines
-train_color = 'blue'
-test_color = 'orange'
+train_color = cfg["train_color"]
+test_color = cfg["test_color"]
 
 
 

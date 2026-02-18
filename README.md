@@ -38,3 +38,6 @@ Configured scripts:
 - `run_cellpose_per_chunk.py` → `run_cellpose_per_chunk_config_local.toml`
 - `run_cellpose_per_z.py` → `run_cellpose_per_z_config_local.toml`
 - `split_annotated_stacks.py` → `split_annotated_stacks_config_local.toml`
+- `train_model.py` → `train_model_config_local.toml`
+- `plot_model_losses.py` → `plot_model_losses_config_local.toml`
+- `calculate_model_performance.py` → `calculate_model_performance_config_local.toml`

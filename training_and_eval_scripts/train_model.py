@@ -2,6 +2,11 @@ from pathlib import Path
 from cellpose import models, io, train
 from datetime import date, datetime
 import pandas as pd
+import sys
+
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+from utils.io_helpers import load_script_config, normalize_user_path, require_dir
 
 
 """
@@ -23,32 +28,39 @@ The training log csv file will have columns for model performance data, which ca
 script of this repository. Until you run that script for the trained model, the cells will say "N/A".
 """
 
-# Define directories using pathlib
-train_dir = Path(r"example\path\your_train_directory")
-test_dir = Path(r"example\path\your_test_directory")
+# -------------------------
+# CONFIG LOADING (shared helper)
+# -------------------------
+cfg = load_script_config(Path(__file__), "train_model_config")
+
+# -------------------------
+# CONFIG PARAMETERS
+# -------------------------
+train_dir = require_dir(normalize_user_path(cfg["train_dir"]), "Train directory")
+test_dir = require_dir(normalize_user_path(cfg["test_dir"]), "Test directory")
 
 # Specify your hyperparameters
 
 # Specify number of epochs - how many times the model gets to see the training data.
 # Recommended setting from cellpose is 100, but longer times may improve performance
-n_epochs = 100
+n_epochs = cfg["n_epochs"]
 
 # Specify weight decay
-weight_decay = 0.1
+weight_decay = cfg["weight_decay"]
 
 # Specify learning rate - essentially how quickly the model learns
 # Recommended setting from cellpose is 1e-5.
 # A lower learning rate may allow you to train for longer without overfitting
-learning_rate = 1e-6
+learning_rate = cfg["learning_rate"]
 
 # Specify normalization behavior. Should generally be set to True.
-normalize = True
+normalize = cfg["normalize"]
 
 # Choose whether to use GPU. Set False if running on CPU only.
-use_gpu = True
+use_gpu = cfg["use_gpu"]
 
 # Give a descriptor for your model, typically a name for the signal
-model_name = "iba1"
+model_name = cfg["model_name"]
 
 
 ## MAIN CODE, do not edit

@@ -3,6 +3,14 @@ import numpy as np
 from pathlib import Path
 import csv
 import matplotlib.pyplot as plt
+import pandas as pd
+from datetime import datetime
+import sys
+
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+
+from utils.io_helpers import load_script_config, normalize_user_path, require_dir, require_file
 from utils.utils import (
     match_instances_iou,
     label_to_random_color,
@@ -10,8 +18,6 @@ from utils.utils import (
     calculate_iou,
     instance_centroid,
 )
-import pandas as pd
-from datetime import datetime
 
 """
 EVALUATE A CELLPOSE MODEL WITH TWO COMPLEMENTARY INSTANCE METRICS (2D)
@@ -31,38 +37,41 @@ Notes:
 - This version ALWAYS appends a new row to evaluation_log.csv (no duplicate blocking).
 """
 
+# -------------------------
+# CONFIG LOADING (shared helper)
+# -------------------------
+cfg = load_script_config(Path(__file__), "calculate_model_performance_config")
+
 # --------------------
-# USER PARAMETERS
+# CONFIG PARAMETERS
 # --------------------
 
 # Path to your trained model (folder or file path used by CellposeModel)
-model_path = Path(
-    r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\testing\christines_data\2026-02-16_cpsam_Npas4-Cre_v2_71_training_images_2000epochs_wd-0.1_lr-1e-05_normTrue"
-)
+model_path = normalize_user_path(cfg["model_path"])
 
 # Path to validation images (2D .tif chunks) with corresponding *_seg.npy files
-validation_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\testing\christines_data\val_data")
+validation_path = require_dir(normalize_user_path(cfg["validation_path"]), "Validation directory")
 
 # Path to CSV with training record (one row per model/training run)
-training_log_path = Path(
-    r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\testing\christines_data\training_record.csv"
-)
+training_log_path = require_file(normalize_user_path(cfg["training_log_path"]), "Training log CSV")
 
 # Cellpose inference params
-flow_threshold = 0.6
-normalize = True
+flow_threshold = cfg["flow_threshold"]
+normalize = cfg["normalize"]
 
 # Choose whether to use GPU. Set False if running on CPU only.
-use_gpu = True
+use_gpu = cfg["use_gpu"]
 
 # Evaluation params
-iou_threshold = 0.5
+iou_threshold = cfg["iou_threshold"]
 
 # Output figure type
-file_type = "svg"
+file_type = cfg["file_type"]
 
-# Optional: limit number of images for quick debugging (set to None to run all)
-limit_images = None  # e.g. 5
+# Optional: limit number of images for quick debugging (set to '' in config to run all)
+limit_images = cfg["limit_images"]
+if limit_images in ("", None):
+    limit_images = None
 
 
 # --------------------
