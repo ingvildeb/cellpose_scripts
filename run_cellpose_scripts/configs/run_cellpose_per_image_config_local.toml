@@ -1,0 +1,9 @@
+# Copy this file to run_cellpose_per_image_config_local.toml and edit local values.
+
+model_path = 'Z:\Labmembers\Ingvild\Cellpose\MOBP_model\4_train\models\2025-10-09_cpsam_MOBP_1000epochs_wd-0.1_lr-1e-06_normTrue'
+input_path = 'Z:\Labmembers\Ingvild\Testing_CellPose\for_christine'
+out_path = 'Z:\Labmembers\Ingvild\Testing_CellPose\for_christine\20260218_Npas4_MOBPmodel_32c'
+
+flow_threshold = 0.4
+normalize = true
+use_gpu = true

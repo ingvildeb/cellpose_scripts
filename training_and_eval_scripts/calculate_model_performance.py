@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 import csv
 import matplotlib.pyplot as plt
-from utils import (
+from utils.utils import (
     match_instances_iou,
     label_to_random_color,
     centroid_inside_gt_matching,

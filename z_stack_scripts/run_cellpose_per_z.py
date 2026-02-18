@@ -4,9 +4,12 @@ import random
 import numpy as np
 import tifffile
 from cellpose import io, models
+import sys
 
-from io_helpers import load_script_config, normalize_user_path, require_dir, require_file
-from utils import generate_cellpose_npy_dict
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+from utils.io_helpers import load_script_config, normalize_user_path, require_dir, require_file
+from utils.utils import generate_cellpose_npy_dict
 
 # -------------------------
 # CONFIG LOADING (shared helper)

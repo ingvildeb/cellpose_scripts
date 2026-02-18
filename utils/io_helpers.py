@@ -1,6 +1,15 @@
 from pathlib import Path
 from typing import Any
-import tomllib
+
+try:
+    import tomllib
+except ImportError:
+    try:
+        import tomli as tomllib
+    except ImportError:
+        # Handle the error or exit
+        import sys
+        sys.exit('Error: This program requires either tomllib or tomli but neither is available')
 
 
 # -------------------------

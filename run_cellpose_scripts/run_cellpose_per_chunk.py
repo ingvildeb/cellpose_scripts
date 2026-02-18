@@ -1,11 +1,13 @@
 from pathlib import Path
-
+import sys
 import numpy as np
 import tifffile as tiff
 from cellpose import io, models
 from tqdm import tqdm
 
-from io_helpers import load_script_config, normalize_user_path, require_dir, require_file
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+from utils.io_helpers import load_script_config, normalize_user_path, require_dir, require_file
 
 # -------------------------
 # CONFIG LOADING (shared helper)

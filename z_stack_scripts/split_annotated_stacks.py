@@ -2,9 +2,12 @@ from pathlib import Path
 
 import numpy as np
 import tifffile
+import sys
 
-from io_helpers import load_script_config, normalize_user_path, require_dir
-from utils import split_annotated_z_stack, calculate_z_numbers
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+from utils.io_helpers import load_script_config, normalize_user_path, require_dir
+from utils.utils import split_annotated_z_stack, calculate_z_numbers
 
 # -------------------------
 # CONFIG LOADING (shared helper)
