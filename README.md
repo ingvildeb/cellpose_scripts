@@ -30,14 +30,4 @@ The scripts use shared config loading from `io_helpers.py`, matching the local/t
 - Scripts load config automatically using:
   - `configs/<script_config_name>_local.toml` (preferred)
   - `configs/<script_config_name>_template.toml` (fallback)
-- Keep `_template.toml` files in git.
-- Copy them to `_local.toml` for machine-specific paths.
-
-Configured scripts:
-- `run_cellpose_per_image.py` → `run_cellpose_per_image_config_local.toml`
-- `run_cellpose_per_chunk.py` → `run_cellpose_per_chunk_config_local.toml`
-- `run_cellpose_per_z.py` → `run_cellpose_per_z_config_local.toml`
-- `split_annotated_stacks.py` → `split_annotated_stacks_config_local.toml`
-- `train_model.py` → `train_model_config_local.toml`
-- `plot_model_losses.py` → `plot_model_losses_config_local.toml`
-- `calculate_model_performance.py` → `calculate_model_performance_config_local.toml`
+- Make a copy of the _template config file and rename it with _local as the suffix instead.
