@@ -40,7 +40,8 @@ Notes:
 # -------------------------
 # CONFIG LOADING (shared helper)
 # -------------------------
-cfg = load_script_config(Path(__file__), "calculate_model_performance_config")
+test_mode = False
+cfg = load_script_config(Path(__file__), "calculate_model_performance_config", test_mode=test_mode)
 
 # --------------------
 # CONFIG PARAMETERS

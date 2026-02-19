@@ -12,7 +12,8 @@ from utils.io_helpers import load_script_config, normalize_user_path, require_di
 # -------------------------
 # CONFIG LOADING (shared helper)
 # -------------------------
-cfg = load_script_config(Path(__file__), "run_cellpose_per_chunk_config")
+test_mode = False
+cfg = load_script_config(Path(__file__), "run_cellpose_per_chunk_config", test_mode=test_mode)
 
 # -------------------------
 # CONFIG PARAMETERS

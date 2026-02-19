@@ -12,7 +12,8 @@ from utils.utils import split_annotated_z_stack, calculate_z_numbers
 # -------------------------
 # CONFIG LOADING (shared helper)
 # -------------------------
-cfg = load_script_config(Path(__file__), "split_annotated_stacks_config")
+test_mode = False
+cfg = load_script_config(Path(__file__), "split_annotated_stacks_config", test_mode=test_mode)
 
 # -------------------------
 # CONFIG PARAMETERS

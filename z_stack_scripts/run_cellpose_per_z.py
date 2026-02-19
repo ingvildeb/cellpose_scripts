@@ -14,7 +14,8 @@ from utils.utils import generate_cellpose_npy_dict
 # -------------------------
 # CONFIG LOADING (shared helper)
 # -------------------------
-cfg = load_script_config(Path(__file__), "run_cellpose_per_z_config")
+test_mode = False
+cfg = load_script_config(Path(__file__), "run_cellpose_per_z_config", test_mode=test_mode)
 
 # -------------------------
 # CONFIG PARAMETERS

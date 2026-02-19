@@ -31,7 +31,8 @@ script of this repository. Until you run that script for the trained model, the 
 # -------------------------
 # CONFIG LOADING (shared helper)
 # -------------------------
-cfg = load_script_config(Path(__file__), "train_model_config")
+test_mode = False
+cfg = load_script_config(Path(__file__), "train_model_config", test_mode=test_mode)
 
 # -------------------------
 # CONFIG PARAMETERS

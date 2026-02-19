@@ -21,7 +21,8 @@ structure and letting the script fetch it automatically to avoid any mismatching
 # -------------------------
 # CONFIG LOADING (shared helper)
 # -------------------------
-cfg = load_script_config(Path(__file__), "plot_model_losses_config")
+test_mode = False
+cfg = load_script_config(Path(__file__), "plot_model_losses_config", test_mode=test_mode)
 
 # -------------------------
 # CONFIG PARAMETERS
