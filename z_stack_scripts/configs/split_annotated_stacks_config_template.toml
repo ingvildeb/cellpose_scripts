@@ -1,15 +1,40 @@
 # Copy this file to split_annotated_stacks_config_local.toml and edit local values.
 
-image_path = 'example/path/your_path'
+image_path = 'C:\Users\SmartBrain_32C_TR\Documents\GitHub\standard_test_data\cellpose_scripts\z_stack_scripts\split_annotated_stacks\not_mip_mode'
 omit_first_and_last = true
 
-subject_id_index = 1
-chunk_info_num_parts = 3
+mip_mode = true
 
+# Set indices of file name parts, separated by underscore
+# If you used all scripts from out LSFM_data_preprocessing github, 
+# your filename should be on the form "104_IEB0041_zstack_MIP_020600_020680_to_MIP_021000_021080_chunk_7168_4864.tif",
+# and the below indices will be correct.
+
+# Number of underscores before the subject id
+subject_id_index = 1
+
+# Number of underscores before the chunk information "chunk_xxx_yyy"
+chunk_info_num_parts = 10
+
+# Number of underscores before the first section of the first MIP of the stack
 mip_first_start_index = 4
+
+# Number of underscores before the last section of the first MIP of the stack
 mip_first_end_index = 5
+
+# Number of underscores before the first section of the last MIP of the stack
 mip_last_start_index = 8
+
+# Number of underscores before the last section of the last MIP of the stack
 mip_last_end_index = 9
 
+# If not MIP mode, and if you used all scripts from out LSFM_data_preprocessing github, 
+# your filename should be on the form "1_IEB0037_zstack_243880_463310_022200_Ch1_to_243880_463310_022280_Ch1_chunk_6656_4352.tif"
+# and the indices below will be correct.
+# If your name is on another form, change indices accordingly
+
+# Number of underscores before the first section index of the stack
 section_start_index = 5
+
+# Number of underscores before the last section index of the stack
 section_end_index = 10

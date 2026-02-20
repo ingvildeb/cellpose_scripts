@@ -9,7 +9,6 @@ Config usage:
 """
 
 from pathlib import Path
-
 import numpy as np
 import tifffile
 import sys
@@ -30,9 +29,9 @@ cfg = load_script_config(Path(__file__), "split_annotated_stacks_config", test_m
 # -------------------------
 image_path = require_dir(normalize_user_path(cfg["image_path"]), "Image path")
 omit_first_and_last = cfg["omit_first_and_last"]
+mip_mode = cfg["mip_mode"]
 
 subject_id_index = cfg["subject_id_index"]
-chunk_info_num_parts = cfg["chunk_info_num_parts"]
 
 mip_first_start_index = cfg["mip_first_start_index"]
 mip_first_end_index = cfg["mip_first_end_index"]
@@ -42,79 +41,67 @@ mip_last_end_index = cfg["mip_last_end_index"]
 section_start_index = cfg["section_start_index"]
 section_end_index = cfg["section_end_index"]
 
+if mip_mode:
+    chunk_info_num_parts = cfg["chunk_info_num_parts_mip"]
+else:
+    chunk_info_num_parts = cfg["chunk_info_num_parts_section"]
+
 # -------------------------
 # MAIN CODE
 # -------------------------
 out_path = image_path / "split_files"
 out_path.mkdir(exist_ok=True)
 
-for tif_file in sorted(image_path.glob("*.tif")):
+# Loop through all .tif files in the image path
+for tif_file in image_path.glob("*.tif"):
+
     npy_file = tif_file.parent / f"{tif_file.stem}_seg.npy"
 
     if npy_file.exists():
+        
+        # Generate list of tif and npy planes
         img_z_list, npy_z_list, no_z_planes = split_annotated_z_stack(tif_file)
         print(f"{no_z_planes} z planes found for {tif_file.stem}")
 
+        # Get the start and end numbers for all the MIPs in the z stack
         split_stem = tif_file.stem.split("_")
 
-        if len(split_stem) <= subject_id_index:
-            raise ValueError(
-                f"Filename '{tif_file.stem}' does not contain subject_id_index={subject_id_index}. "
-                f"Split parts: {split_stem}"
-            )
-        if len(split_stem) < chunk_info_num_parts:
-            raise ValueError(
-                f"Filename '{tif_file.stem}' has fewer parts than chunk_info_num_parts={chunk_info_num_parts}. "
-                f"Split parts: {split_stem}"
-            )
-
+        # Get components for file names
+        
+        # extract the subject id from the file name
         subject_id = split_stem[subject_id_index]
-        chunk_info = "_".join(split_stem[-chunk_info_num_parts:])
 
-        if "MIP" in split_stem:
-            mip_required_max_index = max(
-                mip_first_start_index,
-                mip_first_end_index,
-                mip_last_start_index,
-                mip_last_end_index,
-            )
-            if len(split_stem) <= mip_required_max_index:
-                raise ValueError(
-                    f"Filename '{tif_file.stem}' does not match configured MIP indices "
-                    f"(max index {mip_required_max_index}). Split parts: {split_stem}"
-                )
+        # extract the chunk info from the file name
+        chunk_info = "_".join(split_stem[chunk_info_num_parts:])
+        print(chunk_info)
 
-            first_MIP_start_z = int(split_stem[mip_first_start_index])
-            first_MIP_end_z = int(split_stem[mip_first_end_index])
-            last_MIP_start_z = int(split_stem[mip_last_start_index])
-            last_MIP_end_z = int(split_stem[mip_last_end_index])
+        # If MIP, get all z numbers based on first and last MIP of first and last z
+        if mip_mode:
+            first_MIP_start_z, first_MIP_end_z = int(split_stem[mip_first_start_index]), int(split_stem[mip_first_end_index])
+            last_MIP_start_z, last_MIP_end_z = int(split_stem[mip_last_start_index]), int(split_stem[mip_last_end_index])
 
             MIP_start_numbers = calculate_z_numbers(first_MIP_start_z, last_MIP_start_z, no_z_planes)
             MIP_end_numbers = calculate_z_numbers(first_MIP_end_z, last_MIP_end_z, no_z_planes)
-
+            print(MIP_start_numbers, MIP_end_numbers)
+        # if not MIP, get all z numbers based on first and last z number
         else:
-            section_required_max_index = max(section_start_index, section_end_index)
-            if len(split_stem) <= section_required_max_index:
-                raise ValueError(
-                    f"Filename '{tif_file.stem}' does not match configured non-MIP indices "
-                    f"(max index {section_required_max_index}). Split parts: {split_stem}"
-                )
-
             start_z = int(split_stem[section_start_index])
             end_z = int(split_stem[section_end_index])
 
             section_numbers = calculate_z_numbers(start_z, end_z, no_z_planes)
 
+        # Determine the range of z planes to iterate over
         if omit_first_and_last:
-            z_range = range(1, len(img_z_list) - 1)
+            z_range = range(1, len(img_z_list) - 1)  # Exclude the first and last
         else:
-            z_range = range(len(img_z_list))
+            z_range = range(len(img_z_list))  # Include all planes
 
+        # Loop through z planes to generate individual tif and npy files
         for z in z_range:
             img_z = img_z_list[z]
             npy_z = npy_z_list[z]
 
-            if "MIP" in split_stem:
+            if mip_mode:
                 out_name = f"{subject_id}_MIP_{MIP_start_numbers[z]}_{MIP_end_numbers[z]}_{chunk_info}"
             else:
                 out_name = f"{subject_id}_{section_numbers[z]}_{chunk_info}"
