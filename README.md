@@ -25,9 +25,4 @@ Sometimes, we find that it is useful for the human to work with a Z stack when l
 I recommend running these scripts from your cellpose environment and using the GPU. Instructions for cellpose installation can be found in their Github https://github.com/MouseLand/cellpose. Most of the neccessary packages required to run scripts in this repository will be installed when installing cellpose.
 
 ## TOML configuration workflow
-The scripts use shared config loading from `io_helpers.py`, matching the local/template pattern:
-
-- Scripts load config automatically using:
-  - `configs/<script_config_name>_local.toml` (preferred)
-  - `configs/<script_config_name>_template.toml` (fallback)
-- Make a copy of the _template config file and rename it with _local as the suffix instead.
+The scripts use shared config loading from files associated with each script. To use a scruot, make a copy of the _template config file and rename it with _local as the suffix instead.
