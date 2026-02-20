@@ -52,6 +52,10 @@ learning_rate = cfg["learning_rate"]
 # Specify normalization behavior. Should generally be set to True.
 normalize = cfg["normalize"]
 
+# Set a minimum number of masks that must be present in the chunks for them to be used
+# Default is 5, but if you have very sparse stains you might want to set this lower or even to 0
+min_train_masks = cfg["min_train_masks"]
+
 # Choose whether to use GPU. Set False if running on CPU only.
 use_gpu = cfg["use_gpu"]
 
@@ -77,6 +81,13 @@ if log_out.exists():
 else:
     log_df = pd.DataFrame()
 
+# Assign a unique ascending model_number
+if log_df.empty:
+    model_number = 1
+else:
+    numeric_model_numbers = pd.to_numeric(log_df['model_number'], errors='coerce').dropna()
+    model_number = int(numeric_model_numbers.max()) + 1 if not numeric_model_numbers.empty else 1
+
 # Set up for training, load train and test data
 io.logger_setup()
 
@@ -95,7 +106,7 @@ model_folder = train_dir / "models"
 model_folder.mkdir(exist_ok=True)
 
 # Define the name of the model file with timestamp and hyperparameters included
-model_out_name = f"{timestamp}_cpsam_{model_name}_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}"
+model_out_name = f"cpsam_{model_name}_model-number{model_number}"
 model_path = model_folder / model_out_name
 
 # Train the model
@@ -108,7 +119,8 @@ model_path, train_losses, test_losses = train.train_seg(model.net,
                             learning_rate=learning_rate,
                             n_epochs=n_epochs, 
                             normalize=normalize,
-                            model_name=str(model_path))
+                            model_name=str(model_path),
+                            min_train_masks=min_train_masks)
 
 # Set end time and calculate elapsed time it took to train the model
 end_time = datetime.now()
@@ -133,12 +145,7 @@ print(f"Losses saved to {filename}")
 
 # Save all the training information in the log file
 
-# Assign a unique ascending model_number
-if log_df.empty:
-    model_number = 1
-else:
-    numeric_model_numbers = pd.to_numeric(log_df['model_number'], errors='coerce').dropna()
-    model_number = int(numeric_model_numbers.max()) + 1 if not numeric_model_numbers.empty else 1
+
 
 # Create a new row dictionary with values you want to log
 new_row = {

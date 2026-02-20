@@ -14,7 +14,7 @@ weight_decay = 0.1
 # Specify learning rate - essentially how quickly the model learns
 # Recommended setting from cellpose is 1e-5.
 # A lower learning rate may allow you to train for longer without overfitting
-learning_rate = 1e-6
+learning_rate = 1e-5
 
 # Specify normalization behavior. Should generally be set to True.
 normalize = true
@@ -23,4 +23,8 @@ normalize = true
 use_gpu = true
 
 # Give a descriptor for your model, typically a name for the signal
-model_name = 'iba1'
+model_name = 'my_model_name'
+
+# Set a minimum number of masks that must be present in the chunks for them to be used
+# Default is 5, but if you have very sparse stains you might want to set this lower or even to 0
+min_train_masks = 5
