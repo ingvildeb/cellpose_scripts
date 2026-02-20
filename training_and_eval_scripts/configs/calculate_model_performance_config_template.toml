@@ -6,11 +6,8 @@ model_path = 'example/path/your_model'
 # Path to validation images (2D .tif chunks) with corresponding *_seg.npy files
 validation_path = 'example/path/your_validation_data'
 
-# Path to CSV with training record (one row per model/training run)
-training_log_path = 'example/path/your_training_record.csv'
-
 # Cellpose inference params
-flow_threshold = 0.6
+flow_threshold = 0.4
 normalize = true
 
 # Choose whether to use GPU. Set False if running on CPU only.
@@ -21,6 +18,3 @@ iou_threshold = 0.5
 
 # Output figure type
 file_type = 'svg'
-
-# Optional: limit number of images for quick debugging (set to '' to run all)
-limit_images = ''
