@@ -1,0 +1,12 @@
+# Copy this file to plot_model_losses_config_local.toml and edit local values.
+
+# Set the path to your model
+model_path = 'example/path/your_model'
+
+# Choose what interval of epoch numbers to plot along the x axis.
+# Set to higher interval to avoid very crowded axis with high number of epochs
+plot_every = 50
+
+# Choose the colors of your train and test loss lines
+train_color = 'blue'
+test_color = 'orange'

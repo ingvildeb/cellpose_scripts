@@ -1,3 +1,10 @@
+"""
+Print a quick environment report for OS, Python, PyTorch, and CUDA/GPU availability.
+
+Usage:
+- Run `python misc/env_report_cellpose.py` before troubleshooting install/runtime issues.
+"""
+
 import sys
 import platform
 import torch

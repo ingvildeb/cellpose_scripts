@@ -1,68 +1,77 @@
+"""
+Evaluate a trained Cellpose model on validation TIFF images with instance-level metrics.
+
+Two matching methods are used:
+- IoU-based 1-to-1 instance matching (segmentation-quality proxy; threshold-controlled).
+- Centroid-inside-GT 1-to-1 instance matching (detection/localization proxy).
+
+Outputs include per-image metrics CSV, figures visualizing the matching results, and a csv log with overall metrics.
+
+Config usage:
+- Copy `training_and_eval_scripts/configs/calculate_model_performance_config_template.toml` to
+  `training_and_eval_scripts/configs/calculate_model_performance_config_local.toml`.
+- Edit `_local.toml` to your preferred settings and run the script.
+- If `_local.toml` is missing, the script falls back to `_template.toml`.
+- The training/evaluation logs are inferred from `model_path` to avoid path mismatches.
+"""
+
 from cellpose import models, io
 import numpy as np
 from pathlib import Path
 import csv
 import matplotlib.pyplot as plt
-from utils import (
+import pandas as pd
+from datetime import datetime
+import sys
+
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+
+from utils.io_helpers import load_script_config, normalize_user_path, require_dir
+from utils.utils import (
     match_instances_iou,
     label_to_random_color,
     centroid_inside_gt_matching,
     calculate_iou,
     instance_centroid,
 )
-import pandas as pd
-from datetime import datetime
 
-"""
-EVALUATE A CELLPOSE MODEL WITH TWO COMPLEMENTARY INSTANCE METRICS (2D)
-
-This script evaluates a Cellpose model on 2D image chunks using:
-1) IoU-based 1-to-1 instance matching (segmentation-quality proxy; IoU>=threshold)
-2) Centroid-inside-GT 1-to-1 instance matching (detection/localization proxy)
-
-Outputs:
-- Per-image CSV: metrics_per_image.csv (per-image metrics only)
-- Figures: diagnostic plots per image
-- Evaluation log CSV: evaluation_log.csv (one row per evaluation run), written to the SAME directory as training_log_path
-
-Notes:
-- training_log_path should point to your training record CSV that contains one row per trained model.
-- In that training log, 'model' should match model_path.name and map to a unique 'model_number'.
-- This version ALWAYS appends a new row to evaluation_log.csv (no duplicate blocking).
-"""
+# -------------------------
+# CONFIG LOADING (shared helper)
+# -------------------------
+test_mode = False
+cfg = load_script_config(Path(__file__), "calculate_model_performance_config", test_mode=test_mode)
 
 # --------------------
-# USER PARAMETERS
+# CONFIG PARAMETERS
 # --------------------
 
 # Path to your trained model (folder or file path used by CellposeModel)
-model_path = Path(
-    r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\testing\christines_data\2026-02-16_cpsam_Npas4-Cre_v2_71_training_images_2000epochs_wd-0.1_lr-1e-05_normTrue"
-)
+model_path = normalize_user_path(cfg["model_path"])
+if not model_path.exists():
+    raise FileNotFoundError(f"model_path not found: {model_path}")
 
 # Path to validation images (2D .tif chunks) with corresponding *_seg.npy files
-validation_path = Path(r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\testing\christines_data\val_data")
-
-# Path to CSV with training record (one row per model/training run)
-training_log_path = Path(
-    r"Z:\Labmembers\Ingvild\Cellpose\NeuN_model\testing\christines_data\training_record.csv"
-)
+validation_path = require_dir(normalize_user_path(cfg["validation_path"]), "Validation directory")
 
 # Cellpose inference params
-flow_threshold = 0.6
-normalize = True
+flow_threshold = cfg["flow_threshold"]
+normalize = cfg["normalize"]
 
 # Choose whether to use GPU. Set False if running on CPU only.
-use_gpu = True
+use_gpu = cfg["use_gpu"]
 
 # Evaluation params
-iou_threshold = 0.5
+iou_threshold = cfg["iou_threshold"]
 
 # Output figure type
-file_type = "svg"
+file_type = cfg["file_type"]
 
-# Optional: limit number of images for quick debugging (set to None to run all)
-limit_images = None  # e.g. 5
+if test_mode:
+    # Optional: limit number of images for quick debugging (set to '' in config to run all)
+    limit_images = cfg["limit_images"]
+    if limit_images in ("", None):
+        limit_images = None
 
 
 # --------------------
@@ -98,6 +107,12 @@ def calculate_classification_metrics(tp: int, fp: int, fn: int) -> tuple[float, 
 # --------------------
 # SETUP
 # --------------------
+# Infer log directory from model path
+model_root_dir = model_path.resolve().parent.parent
+log_dir = model_root_dir / "training_logs"
+training_log_path = log_dir / "training_record.csv"
+evaluation_log_path = log_dir / "evaluation_log.csv"
+
 # Get model name, list images to be evaluated and raise errors if user specified paths / files are not found
 model_name = model_path.name
 validation_path = validation_path.resolve()
@@ -109,7 +124,10 @@ if len(tif_images) == 0:
     raise ValueError(f"No .tif images found in validation_path: {validation_path}")
 
 if not training_log_path.exists():
-    raise FileNotFoundError(f"training_log_path not found: {training_log_path}")
+    raise FileNotFoundError(
+        "Could not infer training record from model_path.\n"
+        f"Expected:\n{training_log_path}"
+    )
 
 training_df = pd.read_csv(training_log_path)
 
@@ -139,9 +157,8 @@ if len(model_rows) > 1:
 # Get the model number
 model_number = model_rows.iloc[0]["model_number"]
 
-# Set up output directories in same folder as the training log
-log_dir = training_log_path.parent.resolve()
-evaluation_log_path = log_dir / "evaluation_log.csv"
+# Set up output directories in same folder as the inferred training log
+log_dir.mkdir(parents=True, exist_ok=True)
 
 out_base = log_dir / "f_score_eval"
 out_base.mkdir(parents=True, exist_ok=True)
@@ -503,7 +520,7 @@ average_f1_centroid = safe_mean(f1_c_list)
 average_mean_iou_TP_centroidMatching = safe_mean(mean_iou_c_list)
 
 # Print overall metrics
-print("\nOverall Metrics (micro across all images):")
+print("\nOverall Metrics (across all images):")
 print("IoU matching:")
 print(f"  Precision: {overall_precision_iou:.4f}  Recall: {overall_recall_iou:.4f}  F1: {overall_f1_iou:.4f}")
 print(f"  mean_iou_TP_iouMatching: {overall_mean_iou_TP_iouMatching:.3f}")
@@ -531,7 +548,6 @@ print(f"\nPer-image metrics written to: {metrics_csv_path}")
 # --------------------
 # APPEND ONE ROW TO EVALUATION LOG (AVERAGE + OVERALL)
 # --------------------
-evaluation_log_path = log_dir / "evaluation_log.csv"
 
 eval_cols = [
     "eval_timestamp",

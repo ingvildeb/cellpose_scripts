@@ -7,7 +7,7 @@ This repository contains scripts to work with cellpose. The scripts were primari
 
 **- plot_model_losses.py:** Script to plot train and test loss for your trained model. Saves an svg file with the plot.
 
-**- calculate_model_performance.py:** Script to calculate the precision, recall and F1 score of your trained model. The user inputs a set of validation images to test the model on. Outputs: (1) an .svg file for each validation image, showing the image, ground truth labels, predicted labels, true positives, false positives and false negatives, (2) a metrics summary report with the precision, recall and number of labels per validation image. The script also saves the average metrics to the training_record.csv file.
+**- calculate_model_performance.py:** Script to calculate the precision, recall and F1 score of your trained model. The user inputs a set of validation images to test the model on. Outputs: (1) an .svg file for each validation image, showing the image, ground truth labels, predicted labels, true positives, false positives and false negatives, (2) a metrics summary report with the precision, recall and number of labels per validation image. The script also appends aggregate evaluation metrics to evaluation_log.csv.
 
 ## Scripts for running a cellpose model on section images
 **- run_cellpose_per_image.py:** Script that allows you to run a cellpose model on tif images. The user can input a single image or a folder of images, and adjust flow threshold and normalization behavior as desired.
@@ -23,3 +23,6 @@ Sometimes, we find that it is useful for the human to work with a Z stack when l
 
 ## Getting started
 I recommend running these scripts from your cellpose environment and using the GPU. Instructions for cellpose installation can be found in their Github https://github.com/MouseLand/cellpose. Most of the neccessary packages required to run scripts in this repository will be installed when installing cellpose.
+
+## TOML configuration workflow
+The scripts use shared config loading from files associated with each script. To use a scruot, make a copy of the _template config file and rename it with _local as the suffix instead.

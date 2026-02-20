@@ -1,54 +1,66 @@
+"""
+Train a Cellpose model and write model artifacts plus training logs.
+
+Outputs include:
+- `training_logs/training_record.csv`
+- `training_logs/model_loss_eval/*_trainAndTestLosses.txt`
+- `training_logs/images_per_model_logs/*.csv`
+
+Config usage:
+- Copy `training_and_eval_scripts/configs/train_model_config_template.toml` to
+  `training_and_eval_scripts/configs/train_model_config_local.toml`.
+- Edit `_local.toml` to your preferred settings and run the script.
+- If `_local.toml` is missing, the script falls back to `_template.toml`.
+"""
+
 from pathlib import Path
 from cellpose import models, io, train
 from datetime import date, datetime
 import pandas as pd
+import sys
 
+parent_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(parent_dir))
+from utils.io_helpers import load_script_config, normalize_user_path, require_dir
 
-"""
-CELLPOSE MODEL TRAINING AND DOCUMENTATION SCRIPT
+# -------------------------
+# CONFIG LOADING (shared helper)
+# -------------------------
+test_mode = False
+cfg = load_script_config(Path(__file__), "train_model_config", test_mode=test_mode)
 
-This script allows you to train a cellpose model with a train and test set specified.
-Simply input your directories and desired hyperparameters under user settings and run the whole script.
-
-The script will generate a set of outputs in a folder called "training_logs" located in your training directory:
-
-images_per_model_logs: folder with csv logs of which files were used for training and validation of the model. Just
-for documentation purposes, may or may not be useful later.
-
-model_loss_eval: folder with txt files containing the train and test loss for the model. You can create a graph of
-the losses across epochs with this txt file using the plot_model_losses.py script in this repository.
-
-training_log.csv: csv file with metadata about the model training, including hyperparameters, train and test directory.
-The training log csv file will have columns for model performance data, which can be acquired using the calculate_model_performance.py
-script of this repository. Until you run that script for the trained model, the cells will say "N/A".
-"""
-
-# Define directories using pathlib
-train_dir = Path(r"example\path\your_train_directory")
-test_dir = Path(r"example\path\your_test_directory")
+# -------------------------
+# CONFIG PARAMETERS
+# -------------------------
+train_dir = require_dir(normalize_user_path(cfg["train_dir"]), "Train directory")
+test_dir = require_dir(normalize_user_path(cfg["test_dir"]), "Test directory")
 
 # Specify your hyperparameters
 
 # Specify number of epochs - how many times the model gets to see the training data.
 # Recommended setting from cellpose is 100, but longer times may improve performance
-n_epochs = 100
+n_epochs = cfg["n_epochs"]
 
 # Specify weight decay
-weight_decay = 0.1
+weight_decay = cfg["weight_decay"]
 
 # Specify learning rate - essentially how quickly the model learns
 # Recommended setting from cellpose is 1e-5.
 # A lower learning rate may allow you to train for longer without overfitting
-learning_rate = 1e-6
+learning_rate = cfg["learning_rate"]
 
 # Specify normalization behavior. Should generally be set to True.
-normalize = True
+normalize = cfg["normalize"]
+
+# Set a minimum number of masks that must be present in the chunks for them to be used
+# Default is 5, but if you have very sparse stains you might want to set this lower or even to 0
+min_train_masks = cfg["min_train_masks"]
 
 # Choose whether to use GPU. Set False if running on CPU only.
-use_gpu = True
+use_gpu = cfg["use_gpu"]
 
 # Give a descriptor for your model, typically a name for the signal
-model_name = "iba1"
+model_name = cfg["model_name"]
 
 
 ## MAIN CODE, do not edit
@@ -69,6 +81,13 @@ if log_out.exists():
 else:
     log_df = pd.DataFrame()
 
+# Assign a unique ascending model_number
+if log_df.empty:
+    model_number = 1
+else:
+    numeric_model_numbers = pd.to_numeric(log_df['model_number'], errors='coerce').dropna()
+    model_number = int(numeric_model_numbers.max()) + 1 if not numeric_model_numbers.empty else 1
+
 # Set up for training, load train and test data
 io.logger_setup()
 
@@ -87,7 +106,7 @@ model_folder = train_dir / "models"
 model_folder.mkdir(exist_ok=True)
 
 # Define the name of the model file with timestamp and hyperparameters included
-model_out_name = f"{timestamp}_cpsam_{model_name}_{n_epochs}epochs_wd-{weight_decay}_lr-{learning_rate}_norm{normalize}"
+model_out_name = f"cpsam_{model_name}_model-number{model_number}"
 model_path = model_folder / model_out_name
 
 # Train the model
@@ -100,7 +119,8 @@ model_path, train_losses, test_losses = train.train_seg(model.net,
                             learning_rate=learning_rate,
                             n_epochs=n_epochs, 
                             normalize=normalize,
-                            model_name=str(model_path))
+                            model_name=str(model_path),
+                            min_train_masks=min_train_masks)
 
 # Set end time and calculate elapsed time it took to train the model
 end_time = datetime.now()
@@ -125,12 +145,7 @@ print(f"Losses saved to {filename}")
 
 # Save all the training information in the log file
 
-# Assign a unique ascending model_number
-if log_df.empty:
-    model_number = 1
-else:
-    numeric_model_numbers = pd.to_numeric(log_df['model_number'], errors='coerce').dropna()
-    model_number = int(numeric_model_numbers.max()) + 1 if not numeric_model_numbers.empty else 1
+
 
 # Create a new row dictionary with values you want to log
 new_row = {

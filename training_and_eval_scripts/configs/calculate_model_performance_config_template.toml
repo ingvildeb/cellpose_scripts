@@ -1,0 +1,20 @@
+# Copy this file to calculate_model_performance_config_local.toml and edit local values.
+
+# Path to your trained model (folder or file path used by CellposeModel)
+model_path = 'example/path/your_model'
+
+# Path to validation images (2D .tif chunks) with corresponding *_seg.npy files
+validation_path = 'example/path/your_validation_data'
+
+# Cellpose inference params
+flow_threshold = 0.4
+normalize = true
+
+# Choose whether to use GPU. Set False if running on CPU only.
+use_gpu = true
+
+# Evaluation params
+iou_threshold = 0.5
+
+# Output figure type
+file_type = 'svg'
