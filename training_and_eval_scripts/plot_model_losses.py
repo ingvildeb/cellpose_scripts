@@ -1,3 +1,13 @@
+"""
+Plot training and test loss curves for a trained Cellpose model.
+
+Config usage:
+- Copy `training_and_eval_scripts/configs/plot_model_losses_config_template.toml` to
+  `training_and_eval_scripts/configs/plot_model_losses_config_local.toml`.
+- Edit `_local.toml` to your preferred settings and run the script.
+- If `_local.toml` is missing, the script falls back to `_template.toml`.
+"""
+
 import matplotlib.pyplot as plt
 from pathlib import Path
 import sys
@@ -5,18 +15,6 @@ import sys
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 from utils.io_helpers import load_script_config, normalize_user_path
-
-"""
-PLOT CELLPOSE MODEL LOSSES TO A GRAPH
-
-This script allows you to plot the losses of a trained model. The script uses the loss file saved when running the
-train_model.py script.
-
-Please note that you will have problems if you changed your folder structure after running train_model.py.
-If needed, you can specify the path of your loss file directly on line 27. However, I recommend keeping the folder
-structure and letting the script fetch it automatically to avoid any mismatching of model name and losses.
-
-"""
 
 # -------------------------
 # CONFIG LOADING (shared helper)

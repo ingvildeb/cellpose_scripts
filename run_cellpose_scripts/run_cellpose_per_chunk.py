@@ -1,3 +1,13 @@
+"""
+Run Cellpose on chunked TIFF images, with optional reconstruction to full image size.
+
+Config usage:
+- Copy `run_cellpose_scripts/configs/run_cellpose_per_chunk_config_template.toml` to
+  `run_cellpose_scripts/configs/run_cellpose_per_chunk_config_local.toml`.
+- Edit `_local.toml` to your preferred settings and run the script.
+- If `_local.toml` is missing, the script falls back to `_template.toml`.
+"""
+
 from pathlib import Path
 import sys
 import numpy as np

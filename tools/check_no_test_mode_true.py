@@ -1,3 +1,10 @@
+"""Fail if any Python file contains `test_mode = True`.
+
+Usage:
+- Run `python tools/check_no_test_mode_true.py` before committing.
+- Intended as a guardrail to avoid committing development test-mode toggles.
+"""
+
 from __future__ import annotations
 
 import re

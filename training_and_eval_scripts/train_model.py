@@ -1,3 +1,18 @@
+"""
+Train a Cellpose model and write model artifacts plus training logs.
+
+Outputs include:
+- `training_logs/training_record.csv`
+- `training_logs/model_loss_eval/*_trainAndTestLosses.txt`
+- `training_logs/images_per_model_logs/*.csv`
+
+Config usage:
+- Copy `training_and_eval_scripts/configs/train_model_config_template.toml` to
+  `training_and_eval_scripts/configs/train_model_config_local.toml`.
+- Edit `_local.toml` to your preferred settings and run the script.
+- If `_local.toml` is missing, the script falls back to `_template.toml`.
+"""
+
 from pathlib import Path
 from cellpose import models, io, train
 from datetime import date, datetime
@@ -7,26 +22,6 @@ import sys
 parent_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(parent_dir))
 from utils.io_helpers import load_script_config, normalize_user_path, require_dir
-
-
-"""
-CELLPOSE MODEL TRAINING AND DOCUMENTATION SCRIPT
-
-This script allows you to train a cellpose model with a train and test set specified.
-Simply input your directories and desired hyperparameters under user settings and run the whole script.
-
-The script will generate a set of outputs in a folder called "training_logs" located in your training directory:
-
-images_per_model_logs: folder with csv logs of which files were used for training and validation of the model. Just
-for documentation purposes, may or may not be useful later.
-
-model_loss_eval: folder with txt files containing the train and test loss for the model. You can create a graph of
-the losses across epochs with this txt file using the plot_model_losses.py script in this repository.
-
-training_log.csv: csv file with metadata about the model training, including hyperparameters, train and test directory.
-The training log csv file will have columns for model performance data, which can be acquired using the calculate_model_performance.py
-script of this repository. Until you run that script for the trained model, the cells will say "N/A".
-"""
 
 # -------------------------
 # CONFIG LOADING (shared helper)

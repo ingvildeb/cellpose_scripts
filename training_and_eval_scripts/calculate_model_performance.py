@@ -1,3 +1,19 @@
+"""
+Evaluate a trained Cellpose model on validation TIFF images with instance-level metrics.
+
+Two matching methods are used:
+- IoU-based 1-to-1 instance matching (segmentation-quality proxy; threshold-controlled).
+- Centroid-inside-GT 1-to-1 instance matching (detection/localization proxy).
+
+Outputs include per-image metrics CSV, figures visualizing the matching results, and a csv log with overall metrics.
+
+Config usage:
+- Copy `training_and_eval_scripts/configs/calculate_model_performance_config_template.toml` to
+  `training_and_eval_scripts/configs/calculate_model_performance_config_local.toml`.
+- Edit `_local.toml` to your preferred settings and run the script.
+- If `_local.toml` is missing, the script falls back to `_template.toml`.
+"""
+
 from cellpose import models, io
 import numpy as np
 from pathlib import Path
@@ -18,24 +34,6 @@ from utils.utils import (
     calculate_iou,
     instance_centroid,
 )
-
-"""
-EVALUATE A CELLPOSE MODEL WITH TWO COMPLEMENTARY INSTANCE METRICS (2D)
-
-This script evaluates a Cellpose model on 2D image chunks using:
-1) IoU-based 1-to-1 instance matching (segmentation-quality proxy; IoU>=threshold)
-2) Centroid-inside-GT 1-to-1 instance matching (detection/localization proxy)
-
-Outputs:
-- Per-image CSV: metrics_per_image.csv (per-image metrics only)
-- Figures: diagnostic plots per image
-- Evaluation log CSV: evaluation_log.csv (one row per evaluation run), written to the SAME directory as training_log_path
-
-Notes:
-- training_log_path should point to your training record CSV that contains one row per trained model.
-- In that training log, 'model' should match model_path.name and map to a unique 'model_number'.
-- This version ALWAYS appends a new row to evaluation_log.csv (no duplicate blocking).
-"""
 
 # -------------------------
 # CONFIG LOADING (shared helper)

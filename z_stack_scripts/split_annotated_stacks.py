@@ -1,3 +1,13 @@
+"""
+Split annotated z-stacks into per-plane TIFF and `_seg.npy` files with standardized names.
+
+Config usage:
+- Copy `z_stack_scripts/configs/split_annotated_stacks_config_template.toml` to
+  `z_stack_scripts/configs/split_annotated_stacks_config_local.toml`.
+- Edit `_local.toml` to your preferred settings and run the script.
+- If `_local.toml` is missing, the script falls back to `_template.toml`.
+"""
+
 from pathlib import Path
 
 import numpy as np

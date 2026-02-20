@@ -1,3 +1,13 @@
+"""
+Run Cellpose on each z-plane of TIFF stacks and write combined Cellpose-style outputs.
+
+Config usage:
+- Copy `z_stack_scripts/configs/run_cellpose_per_z_config_template.toml` to
+  `z_stack_scripts/configs/run_cellpose_per_z_config_local.toml`.
+- Edit `_local.toml` to your preferred settings and run the script.
+- If `_local.toml` is missing, the script falls back to `_template.toml`.
+"""
+
 from pathlib import Path
 import random
 
