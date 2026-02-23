@@ -4,7 +4,7 @@ This repository contains scripts to work with cellpose. The scripts have been ma
 
 
 # Get started
-1. Create a conda environment and install cellpose according to instructions found in their Github (https://github.com/MouseLand/cellpose)
+1. Create a conda environment and install cellpose according to instructions found in their Github (https://github.com/MouseLand/cellpose). NOTE: I recommend installing and using version 4.0.4 of cellpose (not more recent versions) for the time being as we find it to give better behavior when applying models to full brain images.
 2. Most of the neccessary packages required to run scripts in this repository will be installed when installing cellpose, but a few may need to be pip installed
 3. For any script you want to use, make a copy of the corresponding config file (`*_template.toml`) and rename it to `*_local.toml`
 4. Edit `*_local.toml` with paths/parameters for your dataset.
@@ -25,9 +25,9 @@ python training_and_eval_scripts/calculate_model_performance.py
 **- calculate_model_performance.py:** Script to calculate the precision, recall and F1 score of your trained model. The user inputs a set of validation images to test the model on. Outputs: (1) an .svg file for each validation image, showing the image, ground truth labels, predicted labels, true positives, false positives and false negatives, (2) a metrics summary report with the precision, recall and number of labels per validation image. The script also appends aggregate evaluation metrics to evaluation_log.csv.
 
 ## Scripts for running a cellpose model on section images
-**- run_cellpose_per_image.py:** Script that allows you to run a cellpose model on tif images. The user can input a single image or a folder of images, and adjust flow threshold and normalization behavior as desired.
+**- run_cellpose_per_image.py:** Script that allows you to run a cellpose model on tif images. The user can input a single image or a folder of images, and adjust flow threshold and normalization behavior as desired. 
 
-**- run_cellpose_per_chunk.py:** Script that runs a cellpose model on chunks from an image and reconstructs them into the full image. This script was created because the latest version of cellpose (v4.0) shows some strange behavior when applying a model trained on image chunks to a whole image (see https://github.com/MouseLand/cellpose/issues/1276#issuecomment-3285468852). In our experience, this behavior is problematic for images with very dense stains (such as NeuN, Sytox) and less prominent with more distributed signals. This code provides a workaround that is incredibly slow, but can be used to assess whether the model performs very different on chunks versus the whole image.
+**- run_cellpose_per_chunk.py:** Script that runs a cellpose model on chunks from an image and reconstructs them into the full image. This script was created because the latest version of cellpose (v4.0) shows some strange behavior when applying a model trained on image chunks to a whole image (see https://github.com/MouseLand/cellpose/issues/1276#issuecomment-3285468852). In our experience, this behavior is problematic for images with very dense stains (such as NeuN, Sytox) and less prominent with more distributed signals. This code is incredibly slow, does not do anything to deal with edge artifacts and should not be used for published analyses, but can be used to assess whether the model performs very different on chunks versus the whole image.
 
 ## Scripts to work with Z stacks in cellpose while still training and applying a 2D model
 Sometimes, we find that it is useful for the human to work with a Z stack when labelling data for cellpose. This allows the user to navigate between planes to better see if a profile should be labelled or not. However, training and applying a cellpose model in 3D for large datasets like those from the brain is complex and time consuming. Therefore, we still want to train and apply our models in 2D. These scripts allows such a process.
