@@ -1,6 +1,21 @@
 # cellpose_scripts
 
-This repository contains scripts to work with cellpose. The scripts were primarily developed to work with Light Sheet Fluorescence Microscopy (LSFM) data from the mouse brain, but may be useful for other purposes as well. The scripts have been made and optimized using chunked images from 2D sections or chunked Z stacks from a range of 2D sections.
+This repository contains scripts to work with cellpose. The scripts have been made and optimized using chunked images from 2D sections or chunked Z stacks from a range of 2D sections.
+
+
+# Get started
+1. Create a conda environment and install cellpose according to instructions found in their Github (https://github.com/MouseLand/cellpose)
+2. Most of the neccessary packages required to run scripts in this repository will be installed when installing cellpose, but a few may need to be pip installed
+3. For any script you want to use, make a copy of the corresponding config file (`*_template.toml`) and rename it to `*_local.toml`
+4. Edit `*_local.toml` with paths/parameters for your dataset.
+5. Run the corresponding script using your preferred software (e.g. VSCode) or in the terminal with Python from repo root, e.g.:
+
+```powershell
+python training_and_eval_scripts/calculate_model_performance.py
+```
+
+
+# Overview of script functionalities
 
 ## Script to train and evaluate a cellpose model
 **- train_model.py:** Script to train a cellpose model on training data, with validation data included. Saves losses to a txt file and creates a csv log file (training_record.csv) that will update every time you train a new model, to help you keep track of your model versions. 
@@ -21,8 +36,3 @@ Sometimes, we find that it is useful for the human to work with a Z stack when l
 
 **- run_cellpose_per_z.py:** Allows you to run a cellpose model on each plane of a z stack individually, and puts them back together into an annotated Z stack. Useful for human-in-the-loop labelling with the Z stack labelling-2D training workflow.
 
-## Getting started
-I recommend running these scripts from your cellpose environment and using the GPU. Instructions for cellpose installation can be found in their Github https://github.com/MouseLand/cellpose. Most of the neccessary packages required to run scripts in this repository will be installed when installing cellpose.
-
-## TOML configuration workflow
-The scripts use shared config loading from files associated with each script. To use a scruot, make a copy of the _template config file and rename it with _local as the suffix instead.
