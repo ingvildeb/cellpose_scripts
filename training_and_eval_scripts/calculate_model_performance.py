@@ -117,8 +117,10 @@ evaluation_log_path = log_dir / "evaluation_log.csv"
 model_name = model_path.name
 validation_path = validation_path.resolve()
 tif_images = sorted(validation_path.glob("*.tif"))
-if limit_images is not None:
-    tif_images = tif_images[: int(limit_images)]
+
+if test_mode:
+    if limit_images is not None:
+        tif_images = tif_images[: int(limit_images)]
 
 if len(tif_images) == 0:
     raise ValueError(f"No .tif images found in validation_path: {validation_path}")
