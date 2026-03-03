@@ -1,0 +1,27 @@
+# Copy this file to plot_performance_per_epoch_config_local.toml and edit local values.
+
+# Path to evaluation log produced by calculate_model_performance.py
+evaluation_log_path = 'example/path/training_logs/evaluation_log.csv'
+
+# Base model name found in column "model" for the final model entry
+model_name = 'cpsam_yourModel_model-number1'
+
+# Epoch number for the base model entry (the row without _epoch_XXXX)
+base_model_epochs = 500
+
+# Metric family to plot: 'centroid' or 'iou'
+metric_type = 'centroid'
+
+# Plot style
+line_color = 'blue'
+marker_style = 'o'
+
+# Output figure type
+file_type = 'svg'
+
+# Show the plot window after saving
+show_plot = true
+
+# Y-axis limits
+y_min = 0
+y_max = 1
