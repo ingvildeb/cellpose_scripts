@@ -114,7 +114,7 @@ training_log_path = log_dir / "training_record.csv"
 evaluation_log_path = log_dir / "evaluation_log.csv"
 
 # Get model name, list images to be evaluated and raise errors if user specified paths / files are not found
-model_name = model_path.name
+model_name = model_path.name.split("_epoch")[0]  # Extract model name from model file name (assumes format: {model_name}_epoch{n}.pt)
 validation_path = validation_path.resolve()
 tif_images = sorted(validation_path.glob("*.tif"))
 
@@ -588,7 +588,7 @@ eval_cols = [
 eval_row = {
     "eval_timestamp": datetime.now().isoformat(timespec="seconds"),
     "model_number": model_number,
-    "model": model_name,
+    "model": model_path.name,
     "model_path": str(model_path),
     "validation_dir": str(validation_path),
     "out_dir": str(out_path),

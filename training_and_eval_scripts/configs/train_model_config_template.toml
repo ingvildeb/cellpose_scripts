@@ -8,6 +8,13 @@ test_dir = 'example/path/your_test_directory'
 # Recommended setting from cellpose is 100, but longer times may improve performance
 n_epochs = 100
 
+# interval at which the model is saved (default is 100)
+save_every = 100
+
+# save_each option, set to true if you want your model to save a separate file for each save_every epoch
+# defaults to false but useful to figure out how many epochs you should train for
+save_each = false
+
 # Specify weight decay
 weight_decay = 0.1
 

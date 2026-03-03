@@ -40,6 +40,8 @@ test_dir = require_dir(normalize_user_path(cfg["test_dir"]), "Test directory")
 # Specify number of epochs - how many times the model gets to see the training data.
 # Recommended setting from cellpose is 100, but longer times may improve performance
 n_epochs = cfg["n_epochs"]
+save_each = cfg["save_each"]
+save_every = cfg["save_every"]
 
 # Specify weight decay
 weight_decay = cfg["weight_decay"]
@@ -118,6 +120,8 @@ model_path, train_losses, test_losses = train.train_seg(model.net,
                             weight_decay=weight_decay, 
                             learning_rate=learning_rate,
                             n_epochs=n_epochs, 
+                            save_every=save_every,
+                            save_each=save_each,
                             normalize=normalize,
                             model_name=str(model_path),
                             min_train_masks=min_train_masks)
