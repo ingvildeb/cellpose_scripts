@@ -1,0 +1,44 @@
+# Copy this file to plot_model_comparison_config_local.toml and edit local values.
+
+# Metric family to compare: 'centroid' or 'iou'
+metric_type = 'centroid'
+
+# Output settings
+output_dir = 'example/path/model_comparison'
+output_prefix = 'compare_models'
+file_type = 'svg'
+show_plot = true
+
+# Y-axis limits
+y_min = 0
+y_max = 1
+
+# Dot style for per-image points
+point_alpha = 0.8
+point_size = 28
+jitter = 0.06
+
+# Optional median labels next to each model/metric box
+show_median_labels = false
+median_label_decimals = 3
+
+# Optional: overlay overall metrics from evaluation_log.csv as dotted markers
+show_overall_markers = false
+
+# Optional labels for the dotted overall markers
+show_overall_value_labels = false
+overall_label_decimals = 3
+
+# Models to compare.
+# metrics_path can be either:
+# - direct path to metrics_per_image.csv
+# - folder containing metrics_per_image.csv
+[[models]]
+label = 'Model A'
+metrics_path = 'example/path/modelA_results/metrics_per_image.csv'
+evaluation_log_path = 'example/path/modelA_training_logs/evaluation_log.csv'
+
+[[models]]
+label = 'Model B'
+metrics_path = 'example/path/modelB_results/metrics_per_image.csv'
+evaluation_log_path = 'example/path/modelB_training_logs/evaluation_log.csv'
