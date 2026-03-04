@@ -17,12 +17,14 @@ python training_and_eval_scripts/calculate_model_performance.py
 
 # Overview of script functionalities
 
-## Script to train and evaluate a cellpose model
+## Script to train and evaluate a cellpose model (training_and_eval_scripts)
 **- train_model.py:** Script to train a cellpose model on training data, with validation data included. Saves losses to a txt file and creates a csv log file (training_record.csv) that will update every time you train a new model, to help you keep track of your model versions. 
 
 **- plot_model_losses.py:** Script to plot train and test loss for your trained model. Saves an svg file with the plot.
 
 **- calculate_model_performance.py:** Script to calculate the precision, recall and F1 score of your trained model. The user inputs a set of validation images to test the model on. Outputs: (1) an .svg file for each validation image, showing the image, ground truth labels, predicted labels, true positives, false positives and false negatives, (2) a metrics summary report with the precision, recall and number of labels per validation image. The script also appends aggregate evaluation metrics to evaluation_log.csv.
+
+**- plot_performance_per_epoch.py:** Script to plot the precision, recall and F1 score of a model trained with different number of epochs. To use this, you first need to train your model using train_model.py with save_each enabled, and then calculate the model performance for each individual model file using calculate_model_performance.
 
 ## Scripts for running a cellpose model on section images
 **- run_cellpose_per_image.py:** Script that allows you to run a cellpose model on tif images. The user can input a single image or a folder of images, and adjust flow threshold and normalization behavior as desired. 
