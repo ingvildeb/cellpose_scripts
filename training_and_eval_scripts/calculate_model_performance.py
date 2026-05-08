@@ -402,10 +402,17 @@ for tif in tif_images:
     # --- Plot figure ---
     plt.figure(figsize=(15, 15))
 
+    if img.ndim == 3: 
+        img_gray = np.mean(img, axis=2) 
+
+    else: 
+        img_gray = img.copy() 
+
+
     # Raw image subplot
     plt.subplot(3, 3, 1)
     plt.title("Raw image")
-    plt.imshow(img, cmap="gray")
+    plt.imshow(img_gray, cmap="gray")
     plt.axis("off")
 
     # Ground truth subplot
@@ -435,42 +442,42 @@ for tif in tif_images:
     # True positives subplot (IoU)
     plt.subplot(3, 3, 4)
     plt.title("TP (IoU)")
-    plt.imshow(img, cmap="gray")
+    plt.imshow(img_gray, cmap="gray")
     plt.imshow(TP_rgb, alpha=0.7)
     plt.axis("off")
 
     # False positives subplot (IoU)
     plt.subplot(3, 3, 5)
     plt.title("FP (IoU)")
-    plt.imshow(img, cmap="gray")
+    plt.imshow(img_gray, cmap="gray")
     plt.imshow(FP_rgb, alpha=0.7)
     plt.axis("off")
 
     # False negatives subplot (IoU)
     plt.subplot(3, 3, 6)
     plt.title("FN (IoU)")
-    plt.imshow(img, cmap="gray")
+    plt.imshow(img_gray, cmap="gray")
     plt.imshow(FN_rgb, alpha=0.7)
     plt.axis("off")
 
     # True positives subplot (centroid)
     plt.subplot(3, 3, 7)
     plt.title("TP (centroid)")
-    plt.imshow(img, cmap="gray")
+    plt.imshow(img_gray, cmap="gray")
     plt.imshow(TPc_rgb, alpha=0.7)
     plt.axis("off")
 
     # False positives subplot (centroid)
     plt.subplot(3, 3, 8)
     plt.title("FP (centroid)")
-    plt.imshow(img, cmap="gray")
+    plt.imshow(img_gray, cmap="gray")
     plt.imshow(FPc_rgb, alpha=0.7)
     plt.axis("off")
 
     # False negatives subplot (centroid)
     plt.subplot(3, 3, 9)
     plt.title("FN (centroid)")
-    plt.imshow(img, cmap="gray")
+    plt.imshow(img_gray, cmap="gray")
     plt.imshow(FNc_rgb, alpha=0.7)
     plt.axis("off")
 
