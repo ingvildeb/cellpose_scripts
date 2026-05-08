@@ -1,0 +1,33 @@
+# Copy this file to calculate_silver_standard_performance_config_local.toml and edit local values.
+
+# Directory containing prediction *_seg.npy files.
+prediction_dir = 'example/path/to/predictions'
+
+# Directory containing corrected *_seg.npy files with the same filenames as prediction files.
+corrected_dir = 'example/path/to/corrected_predictions'
+
+# Directory containing atlas tif chunks named like the chunk stem plus _atlas.tif.
+atlas_dir = 'example/path/to/atlas_chunks'
+
+# Optional output directory. Leave blank to create a timestamped folder next to prediction_dir.
+output_dir = ''
+
+# If true, save a few example TP / FP / FN plots for sanity checking.
+make_example_plots = false
+max_example_plots = 5
+plot_file_type = 'svg'
+
+# Region is flagged as unquantifiable if excluded pixels / total validation pixels meets this threshold.
+unquantifiable_fraction_threshold = 0.2
+
+[advanced]
+# Parse animal ID from the chunk stem without _seg using delimiter splitting.
+animal_id_index = 0
+filename_delimiter = "_"
+
+# atlaslevels preset used to resolve atlas_id values in atlas tif chunks.
+# Requires atlaslevels to be installed in the Python environment running this script.
+atlaslevels_preset = "allen_ccfv3"
+
+# ID map preset used to convert atlas chunk KimLab 16-bit IDs into Allen ontology IDs.
+atlaslevels_id_map_preset = "allen_ccfv3_allen_to_kimlab16bit"
